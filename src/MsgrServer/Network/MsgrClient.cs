@@ -46,11 +46,5 @@ namespace Aura.Msgr.Network
 
 			return result;
 		}
-
-		public override void Send(byte[] buffer)
-		{
-			Log.Debug("out: " + BitConverter.ToString(buffer));
-			base.Send(buffer);
-		}
 	}
 }

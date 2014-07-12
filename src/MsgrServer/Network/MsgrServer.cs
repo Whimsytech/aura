@@ -20,8 +20,6 @@ namespace Aura.Msgr.Network
 
 		protected override void HandleBuffer(MsgrClient client, byte[] buffer)
 		{
-			Log.Debug("in:  " + BitConverter.ToString(buffer));
-
 			var length = buffer.Length;
 			if (length < 5) return;
 
