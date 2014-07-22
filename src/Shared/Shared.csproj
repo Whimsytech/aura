@@ -79,6 +79,7 @@
     <Compile Include="Network\DefaultServer.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\Op.cs" />
+    <Compile Include="Network\PacketHandler.cs" />
     <Compile Include="Network\PacketHandlerManager.cs" />
     <Compile Include="Network\ServerInfo.cs" />
     <Compile Include="Network\ServerInfoManager.cs" />

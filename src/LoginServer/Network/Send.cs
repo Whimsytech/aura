@@ -373,42 +373,6 @@ namespace Aura.Login.Network
 		}
 
 		/// <summary>
-		/// Sends negative ChannelInfoRequestR to client.
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="info"></param>
-		public static void ChannelInfoRequestR_Fail(LoginClient client)
-		{
-			ChannelInfoRequestR(client, null, 0);
-		}
-
-		/// <summary>
-		/// Sends ChannelInfoRequestR to client.
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="info">Negative response if null.</param>
-		public static void ChannelInfoRequestR(LoginClient client, ChannelInfo info, long characterId)
-		{
-			var packet = new Packet(Op.ChannelInfoRequestR, MabiId.Channel);
-			packet.PutByte(info != null);
-
-			if (info != null)
-			{
-				packet.PutString(info.ServerName);
-				packet.PutString(info.Name);
-				packet.PutShort(6); // Channel "Id"? (seems to be equal to channel nr)
-				packet.PutString(info.Host);
-				packet.PutString(info.Host);
-				packet.PutShort((short)info.Port);
-				packet.PutShort((short)(info.Port + 2));
-				packet.PutInt(1);
-				packet.PutLong(characterId);
-			}
-
-			client.Send(packet);
-		}
-
-		/// <summary>
 		/// Sends Internal.ServerIdentifyR  to channel client.
 		/// </summary>
 		/// <param name="client"></param>
@@ -436,19 +400,6 @@ namespace Aura.Login.Network
 		}
 
 		/// <summary>
-		/// Sends LoginUnkR to client.
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="unkByte"></param>
-		public static void LoginUnkR(LoginClient client, byte unkByte)
-		{
-			var packet = new Packet(Op.LoginUnkR, MabiId.Login);
-			packet.PutByte(unkByte);
-
-			client.Send(packet);
-		}
-
-		/// <summary>
 		/// Sends Internal.Broadcast to all channel servers.
 		/// </summary>
 		public static void Internal_Broadcast(string message)
@@ -457,21 +408,6 @@ namespace Aura.Login.Network
 			packet.PutString(message);
 
 			LoginServer.Instance.BroadcastChannels(packet);
-		}
-
-		/// <summary>
-		/// Sends negative TradeCardR to client (temp).
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="cardId">Negative response if 0.</param>
-		public static void TradeCardR(LoginClient client, long cardId)
-		{
-			var packet = new Packet(Op.TradeCardR, MabiId.Login);
-			packet.PutByte(cardId != 0);
-			if (cardId != 0)
-				packet.PutLong(cardId);
-
-			client.Send(packet);
 		}
 
 		/// <summary>

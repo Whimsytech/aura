@@ -1,40 +1,29 @@
 ﻿// Copyright (c) Aura development team - Licensed under GNU GPL
 // For more information, see license file in the main folder
 
-using System.Linq;
 using Aura.Data;
 using Aura.Login.Database;
+using Aura.Login.Network;
+using Aura.Shared.Mabi.Const;
 using Aura.Shared.Network;
 using Aura.Shared.Util;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace Aura.Login.Network.Handlers
+namespace Aura.Login.Packets
 {
-	public partial class LoginServerHandlers : PacketHandlerManager<LoginClient>
+	/// <summary>
+	/// Sent when player chooses to trade a character card for
+	/// the items and pons.
+	/// </summary>
+	/// <remarks>
+	/// New in NA188.
+	/// </remarks>
+	[PacketHandler(Op.TradeCard)]
+	public class TradeCard : PacketHandler<LoginClient>
 	{
-		/// <summary>
-		/// ?
-		/// </summary>
-		/// <remarks>
-		/// No idea what this is. Answer contains a single 0 byte,
-		/// possibly a list of some kind. Nothing special happens
-		/// when the byte is modified.
-		/// </remarks>
-		/// <example>
-		/// No parameters.
-		/// </example>
-		[PacketHandler(Op.LoginUnk)]
-		public void LoginUnk(LoginClient client, Packet packet)
-		{
-			Send.LoginUnkR(client, 0);
-		}
-
-		/// <summary>
-		/// Sent when player chooses to trade a character card for
-		/// the items and pons.
-		/// </summary>
-		/// <remarks>
-		/// New in NA188.
-		/// </remarks>
 		/// <example>
 		/// 001 [................] String : Zerono
 		/// 002 [................] String : Aura
@@ -43,8 +32,7 @@ namespace Aura.Login.Network.Handlers
 		/// </example>
 		/// <param name="client"></param>
 		/// <param name="packet"></param>
-		[PacketHandler(Op.TradeCard)]
-		public void TradeCard(LoginClient client, Packet packet)
+		public override void Handle(LoginClient client, Packet packet)
 		{
 			var name = packet.GetString();
 			var server = packet.GetString();
@@ -83,10 +71,31 @@ namespace Aura.Login.Network.Handlers
 			LoginDb.Instance.TradeCard(character, cardData);
 
 			// Success
-			Send.TradeCardR(client, cardId);
+			TradeCardR.Send(client, cardId);
 
 		L_Fail:
-			Send.TradeCardR(client, 0);
+			TradeCardR.Send(client, 0);
+		}
+	}
+
+	/// <summary>
+	/// Response to TradeCard.
+	/// </summary>
+	public class TradeCardR : PacketHandler<LoginClient>
+	{
+		/// <summary>
+		/// Sends negative TradeCardR to client (temp).
+		/// </summary>
+		/// <param name="client"></param>
+		/// <param name="cardId">Negative response if 0.</param>
+		public static void Send(LoginClient client, long cardId)
+		{
+			var packet = new Packet(Op.TradeCardR, MabiId.Login);
+			packet.PutByte(cardId != 0);
+			if (cardId != 0)
+				packet.PutLong(cardId);
+
+			client.Send(packet);
 		}
 	}
 }
