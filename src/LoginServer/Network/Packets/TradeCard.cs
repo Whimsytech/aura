@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Aura.Login.Packets
+namespace Aura.Login.Network.Packets
 {
 	/// <summary>
 	/// Sent when player chooses to trade a character card for
