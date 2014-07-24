@@ -2,8 +2,10 @@
 // For more information, see license file in the main folder
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Aura.Shared.Util;
+using System.Reflection;
 
 namespace Aura.Shared.Network
 {
@@ -40,6 +42,7 @@ namespace Aura.Shared.Network
 		/// </summary>
 		public void AutoLoad()
 		{
+			// Methods
 			foreach (var method in this.GetType().GetMethods())
 			{
 				foreach (PacketHandlerAttribute attr in method.GetCustomAttributes(typeof(PacketHandlerAttribute), false))
@@ -47,6 +50,18 @@ namespace Aura.Shared.Network
 					var del = (PacketHandlerFunc)Delegate.CreateDelegate(typeof(PacketHandlerFunc), this, method);
 					foreach (var op in attr.Ops)
 						this.Add(op, del);
+				}
+			}
+
+			// Classes
+			foreach (var type in Assembly.GetCallingAssembly().GetTypes().Where(a => a.GetInterfaces().Contains((typeof(IPacketHandler<TClient>)))))
+			{
+				foreach (PacketHandlerAttribute attr in type.GetCustomAttributes(typeof(PacketHandlerAttribute), false))
+				{
+					var handler = Activator.CreateInstance(type) as IPacketHandler<TClient>;
+
+					foreach (var op in attr.Ops)
+						this.Add(op, handler.Handle);
 				}
 			}
 		}
