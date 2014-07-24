@@ -19,7 +19,7 @@ namespace Aura.Login.Network.Packets
 	/// connection to the channel fails.
 	/// </remarks>
 	[PacketHandler(Op.ChannelInfoRequest)]
-	public class ChannelInfoRequest : PacketHandler<LoginClient>
+	public class ChannelInfoRequest : IPacketHandler<LoginClient>
 	{
 		/// <example>
 		/// Normal
@@ -36,7 +36,7 @@ namespace Aura.Login.Network.Packets
 		/// 0004 [0010000000000002] Long   : 4503599627370498
 		/// 0005 [0000000000000000] Long   : 0
 		/// </example>
-		public override void Handle(LoginClient client, Packet packet)
+		public void Handle(LoginClient client, Packet packet)
 		{
 			var serverName = packet.GetString();
 			var channelName = packet.GetString();
@@ -65,7 +65,7 @@ namespace Aura.Login.Network.Packets
 	/// <summary>
 	/// Response to ChannelInfoRequest.
 	/// </summary>
-	public class ChannelInfoRequestR : PacketHandler<LoginClient>
+	public class ChannelInfoRequestR : IPacketSender
 	{
 		/// <summary>
 		/// Sends negative ChannelInfoRequestR to client.

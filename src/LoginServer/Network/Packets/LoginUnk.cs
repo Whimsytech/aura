@@ -20,12 +20,12 @@ namespace Aura.Login.Network.Packets
 	/// when the byte is modified.
 	/// </remarks>
 	[PacketHandler(Op.LoginUnk)]
-	public class LoginUnk : PacketHandler<LoginClient>
+	public class LoginUnk : IPacketHandler<LoginClient>
 	{
 		/// <example>
 		/// No parameters.
 		/// </example>
-		public override void Handle(LoginClient client, Packet packet)
+		public void Handle(LoginClient client, Packet packet)
 		{
 			LoginUnkR.Send(client, 0);
 		}
@@ -34,7 +34,7 @@ namespace Aura.Login.Network.Packets
 	/// <summary>
 	/// Response to LoginUnk.
 	/// </summary>
-	public class LoginUnkR : PacketHandler<LoginClient>
+	public class LoginUnkR : IPacketSender
 	{
 		/// <summary>
 		/// Sends LoginUnkR to client.

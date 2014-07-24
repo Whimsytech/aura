@@ -22,7 +22,7 @@ namespace Aura.Login.Network.Packets
 	/// New in NA188.
 	/// </remarks>
 	[PacketHandler(Op.TradeCard)]
-	public class TradeCard : PacketHandler<LoginClient>
+	public class TradeCard : IPacketHandler<LoginClient>
 	{
 		/// <example>
 		/// 001 [................] String : Zerono
@@ -32,7 +32,7 @@ namespace Aura.Login.Network.Packets
 		/// </example>
 		/// <param name="client"></param>
 		/// <param name="packet"></param>
-		public override void Handle(LoginClient client, Packet packet)
+		public void Handle(LoginClient client, Packet packet)
 		{
 			var name = packet.GetString();
 			var server = packet.GetString();
@@ -81,7 +81,7 @@ namespace Aura.Login.Network.Packets
 	/// <summary>
 	/// Response to TradeCard.
 	/// </summary>
-	public class TradeCardR : PacketHandler<LoginClient>
+	public class TradeCardR : IPacketSender
 	{
 		/// <summary>
 		/// Sends negative TradeCardR to client (temp).
