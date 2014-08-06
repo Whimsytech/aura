@@ -35,6 +35,7 @@ namespace Aura.Channel.Scripting
 
 		private Dictionary<string, Compiler> _compilers;
 
+		private Dictionary<string, Type> _scripts;
 		private Dictionary<int, ItemScript> _itemScripts;
 		private Dictionary<string, Type> _aiScripts;
 		private Dictionary<string, NpcShopScript> _shops;
@@ -55,6 +56,7 @@ namespace Aura.Channel.Scripting
 			_compilers.Add("cs", new CSharpCompiler());
 			_compilers.Add("boo", new BooCompiler());
 
+			_scripts = new Dictionary<string, Type>();
 			_itemScripts = new Dictionary<int, ItemScript>();
 			_aiScripts = new Dictionary<string, Type>();
 			_shops = new Dictionary<string, NpcShopScript>();
@@ -109,6 +111,7 @@ namespace Aura.Channel.Scripting
 		{
 			Log.Info("Loading scripts, this might take a few minutes...");
 
+			_scripts.Clear();
 			_creatureSpawns.Clear();
 			_questScripts.Clear();
 			_hooks.Clear();
@@ -167,6 +170,9 @@ namespace Aura.Channel.Scripting
 				done++;
 			}
 			Log.Progress(100, 100);
+
+			// Init scripts
+			this.InitializeScripts();
 
 			if (toLoad.Count > 0)
 				Log.WriteLine();
@@ -455,6 +461,60 @@ namespace Aura.Channel.Scripting
 			{
 				try
 				{
+					// Make sure there's only one copy of each script.
+					if (_scripts.ContainsKey(type.Name))
+					{
+						Log.Error("Script classes must have unique names, duplicate '{0}' found in '{1}'.", type.Name, Path.GetFileName(filePath));
+						continue;
+					}
+
+					// Check overrides
+					var overide = type.GetCustomAttribute<OverrideAttribute>();
+					if (overide != null)
+					{
+						if (_scripts.ContainsKey(overide.TypeName))
+						{
+							_scripts.Remove(overide.TypeName);
+						}
+						else
+							Log.Warning("Override: Script class '{0}' not found ({1} @ {2}).", overide.TypeName, type.Name, Path.GetFileName(filePath));
+					}
+
+					// Check removes
+					var removes = type.GetCustomAttribute<RemoveAttribute>();
+					if (removes != null)
+					{
+						foreach (var rm in removes.TypeNames)
+						{
+							if (_scripts.ContainsKey(rm))
+							{
+								_scripts.Remove(rm);
+							}
+							else
+								Log.Warning("Remove: Script class '{0}' not found ({1} @ {2}).", rm, type.Name, Path.GetFileName(filePath));
+						}
+					}
+
+					// Add class to load list, even if it's a dummy for remove,
+					// we can't be sure it's not supposed to get initialized.
+					_scripts[type.Name] = type;
+				}
+				catch (Exception ex)
+				{
+					Log.Exception(ex, "Error while loading script '{0}' ({1}).", type.Name, ex.Message);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Initializes all scripts loaded from assemblies.
+		/// </summary>
+		private void InitializeScripts()
+		{
+			foreach (var type in _scripts.Values)
+			{
+				try
+				{
 					// Initiate script
 					var script = Activator.CreateInstance(type) as IScript;
 					if (!script.Init())
@@ -463,19 +523,15 @@ namespace Aura.Channel.Scripting
 						continue;
 					}
 
-					// Obsolescence check
-					if (type.IsSubclassOf(typeof(BaseScript)))
-						Log.Warning("{0}: BaseScript is obsolete and will eventually be removed, use GeneralScript instead.", filePath);
-					if (type.IsSubclassOf(typeof(NpcShop)))
-						Log.Warning("{0}: NpcShop is obsolete and will eventually be removed, use NpcShopScript instead.", filePath);
+					// Register scripts implementing IDisposable as script to
+					// dispose on reload.
+					if (type.GetInterfaces().Contains(typeof(IDisposable)))
+						_scriptsToDispose.Add(script as IDisposable);
 
-					// Run default methods for base scripts.
-					if (type.IsSubclassOf(typeof(GeneralScript)))
-					{
-						var baseScript = script as GeneralScript;
-						baseScript.AutoLoadEvents();
-						this.RegisterDisposableScript(baseScript);
-					}
+					// Run auto loader. This has to be done after Init,
+					// because of how Load is called from GeneralScript.
+					if (type.GetInterfaces().Contains(typeof(IAutoLoader)))
+						(script as IAutoLoader).AutoLoad();
 				}
 				catch (Exception ex)
 				{
@@ -788,15 +844,6 @@ namespace Aura.Channel.Scripting
 				return null;
 
 			return result;
-		}
-
-		/// <summary>
-		/// Adds scriptt o list of scripts that are to disposed upon reload.
-		/// </summary>
-		/// <param name="script"></param>
-		public void RegisterDisposableScript(IDisposable script)
-		{
-			_scriptsToDispose.Add(script);
 		}
 	}
 

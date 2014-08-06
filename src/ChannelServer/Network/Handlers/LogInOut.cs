@@ -9,6 +9,8 @@ using Aura.Shared.Util;
 using Aura.Channel.World;
 using Aura.Shared.Mabi.Const;
 using Aura.Channel.World.Entities;
+using System;
+using Aura.Shared.Mabi;
 
 namespace Aura.Channel.Network.Handlers
 {
@@ -42,19 +44,16 @@ namespace Aura.Channel.Network.Handlers
 			var account = ChannelDb.Instance.GetAccount(accountId);
 			if (account == null || account.SessionKey != sessionKey)
 			{
+				// This doesn't autoban because the client is not yet "authenticated",
+				// so an evil person might be able to use it to inflate someone's
+				// autoban score without knowing their password
 				Log.Warning("ChannelLogin handler: Invalid account ({0}) or session ({1}).", accountId, sessionKey);
 				client.Kill();
 				return;
 			}
 
 			// Check character
-			var character = account.GetCharacterOrPet(characterId);
-			if (character == null)
-			{
-				Log.Warning("ChannelLogin handler: Account ({0}) doesn't contain character ({1}).", accountId, characterId);
-				client.Kill();
-				return;
-			}
+			var character = account.GetCharacterOrPetSafe(characterId);
 
 			client.Account = account;
 			client.Controlling = character;
@@ -100,11 +99,10 @@ namespace Aura.Channel.Network.Handlers
 		[PacketHandler(Op.EnterRegionRequest)]
 		public void EnterRegionRequest(ChannelClient client, Packet packet)
 		{
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-				return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			// Check permission
+			// This can happen from time to time, client lag?
 			if (!creature.Warping)
 			{
 				Log.Warning("Unauthorized warp attemp from '{0}'.", creature.Name);
@@ -179,12 +177,7 @@ namespace Aura.Channel.Network.Handlers
 		[PacketHandler(Op.ChannelCharacterInfoRequest)]
 		public void ChannelCharacterInfoRequest(ChannelClient client, Packet packet)
 		{
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-			{
-				Send.ChannelCharacterInfoRequestR_Fail(client);
-				return;
-			}
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			if (creature.Master != null)
 			{
@@ -201,6 +194,21 @@ namespace Aura.Channel.Network.Handlers
 				// Send vehicle info to make mounts mountable
 				if (creature.RaceData.VehicleType > 0)
 					Send.VehicleInfo(creature);
+			}
+
+			var playerCreature = creature as PlayerCreature;
+			if (playerCreature != null)
+			{
+				// Update last login
+				playerCreature.LastLogin = DateTime.Now;
+
+				// Age check
+				var lastSaturday = ErinnTime.Now.GetLastSaturday();
+				var lastAging = playerCreature.LastAging;
+				var diff = (lastSaturday - lastAging).TotalDays;
+
+				if (lastAging < lastSaturday)
+					playerCreature.AgeUp((short)(1 + diff / 7));
 			}
 		}
 
@@ -250,8 +258,8 @@ namespace Aura.Channel.Network.Handlers
 		[PacketHandler(Op.LeaveSoulStream)]
 		public void LeaveSoulStream(ChannelClient client, Packet packet)
 		{
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null || !creature.Temp.InSoulStream)
+			var creature = client.GetCreatureSafe(packet.Id);
+			if (!creature.Temp.InSoulStream)
 				return;
 
 			creature.Temp.InSoulStream = false;

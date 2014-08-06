@@ -18,7 +18,6 @@ namespace Aura.Channel.World.Entities
 
 		private static long _itemId = MabiId.TmpItems;
 
-		public override EntityType EntityType { get { return EntityType.Item; } }
 		public override DataType DataType { get { return DataType.Item; } }
 		public override int RegionId
 		{
@@ -74,6 +73,14 @@ namespace Aura.Channel.World.Entities
 		public float Critical
 		{
 			get { return this.OptionInfo.Critical / 100f; }
+		}
+
+		/// <summary>
+		/// Returns true if tag contains "/pounch/bag/".
+		/// </summary>
+		public bool IsBag
+		{
+			get { return this.Data.HasTag("/pouch/bag/"); }
 		}
 
 		/// <summary>

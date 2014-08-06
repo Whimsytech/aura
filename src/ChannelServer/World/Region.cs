@@ -13,6 +13,7 @@ using Aura.Shared.Network;
 using Aura.Shared.Util;
 using System.Threading;
 using Aura.Data.Database;
+using Boo.Lang.Compiler.TypeSystem;
 
 namespace Aura.Channel.World
 {
@@ -39,7 +40,7 @@ namespace Aura.Channel.World
 		/// <summary>
 		/// Manager for blocking objects in the region.
 		/// </summary>
-		public RegionCollision Collissions { get; protected set; }
+		public RegionCollision Collisions { get; protected set; }
 
 		public Region(int id)
 		{
@@ -62,8 +63,8 @@ namespace Aura.Channel.World
 				return;
 			}
 
-			this.Collissions = new RegionCollision(_regionData.X1, _regionData.Y1, _regionData.X2, _regionData.Y2);
-			this.Collissions.Init(_regionData);
+			this.Collisions = new RegionCollision(_regionData.X1, _regionData.Y1, _regionData.X2, _regionData.Y2);
+			this.Collisions.Init(_regionData);
 
 			this.LoadClientProps();
 		}
@@ -80,7 +81,7 @@ namespace Aura.Channel.World
 			{
 				foreach (var prop in area.Props.Values)
 				{
-					var add = new Prop(prop.EntityId, "", "", "", prop.Id, this.Id, (int)prop.X, (int)prop.Y, prop.Direction, prop.Scale, 0);
+					var add = new Prop(prop.EntityId, "", "", prop.Id, this.Id, (int)prop.X, (int)prop.Y, prop.Direction, prop.Scale, 0);
 
 					// Add drop behaviour if drop type exists
 					var dropType = prop.GetDropType();
@@ -230,7 +231,18 @@ namespace Aura.Channel.World
 				// Send all props of a region, so they're visible from afar.
 				// While client props are visible as well they don't have to
 				// be sent, the client already has them.
-				result.AddRange(_props.Values.Where(a => a.ServerSide));
+				//
+				// ^^^^^^^^^^^^^^^^^^ This caused a bug with client prop states
+				// not being set until the prop was used by a player while
+				// the creature was in the region (eg windmill) so we'll count
+				// all props as visible. -- Xcelled
+				//
+				// ^^^^^^^^^^^^^^^^^^ That causes a huge EntitiesAppear packet,
+				// because there are thousands of client props. We only need
+				// the ones that make a difference. Added check for
+				// state and XML. [exec]
+
+				result.AddRange(_props.Values.Where(a => a.ServerSide || a.ModifiedClientSide));
 			}
 			finally
 			{
@@ -392,6 +404,25 @@ namespace Aura.Channel.World
 			try
 			{
 				return _creatures.Values.Where(a => a.IsPlayer).ToList();
+			}
+			finally
+			{
+				_creaturesRWLS.ExitReadLock();
+			}
+		}
+
+		/// <summary>
+		/// Returns amount of players in region.
+		/// </summary>
+		/// <returns></returns>
+		public int CountPlayers()
+		{
+			_creaturesRWLS.EnterReadLock();
+			try
+			{
+				// Count any player creatures that are directly controlled,
+				// filtering creatures with masters (pets/partners).
+				return _creatures.Values.Count(a => a is PlayerCreature && a.Master == null);
 			}
 			finally
 			{
@@ -610,7 +641,7 @@ namespace Aura.Channel.World
 			try
 			{
 				// All props are visible, but not all of them are in range.
-				result.AddRange(_props.Values.Where(a => a.GetPosition().InRange(source.GetPosition(), range) && a.ServerSide));
+				result.AddRange(_props.Values.Where(a => a.GetPosition().InRange(source.GetPosition(), range)));
 			}
 			finally
 			{
@@ -659,7 +690,7 @@ namespace Aura.Channel.World
 			_creaturesRWLS.EnterReadLock();
 			try
 			{
-				foreach (NPC npc in _creatures.Values.Where(a => a.Is(EntityType.NPC)))
+				foreach (var npc in _creatures.Values.OfType<NPC>())
 				{
 					if (npc.AI == null)
 						continue;
@@ -691,13 +722,8 @@ namespace Aura.Channel.World
 			_creaturesRWLS.EnterReadLock();
 			try
 			{
-				var result = 0;
-				foreach (NPC npc in _creatures.Values.Where(a => a.Is(EntityType.NPC)))
-				{
-					if (npc.AI != null && npc.AI.State == Aura.Channel.Scripting.Scripts.AiScript.AiState.Aggro && npc.Race == raceId && npc.Target == target)
-						result++;
-				}
-				return result;
+				return _creatures.Values.OfType<NPC>()
+					.Count(npc => npc.AI != null && npc.AI.State == Scripting.Scripts.AiScript.AiState.Aggro && npc.Race == raceId && npc.Target == target);
 			}
 			finally
 			{
@@ -714,8 +740,7 @@ namespace Aura.Channel.World
 			_creaturesRWLS.EnterReadLock();
 			try
 			{
-				foreach (NPC npc in _creatures.Values.Where(a => a.Is(EntityType.NPC) && a.Has(CreatureStates.GoodNpc)))
-					list.Add(npc);
+				list.AddRange(_creatures.Values.Where(a => a.Has(CreatureStates.GoodNpc) && a is NPC));
 			}
 			finally
 			{

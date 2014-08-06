@@ -61,9 +61,9 @@ namespace Aura.Channel.World.Entities
 		public ScriptVariables Vars { get; protected set; }
 
 		public bool IsPlayer { get { return (this.IsCharacter || this.IsPet); } }
-		public bool IsCharacter { get { return (this.EntityType == EntityType.Character); } }
-		public bool IsPet { get { return (this.EntityType == EntityType.Pet); } }
-		public bool IsPartner { get { return (this.EntityType == EntityType.Pet && this.EntityId >= MabiId.Partners); } }
+		public bool IsCharacter { get { return (this is Character); } }
+		public bool IsPet { get { return (this is Pet); } }
+		public bool IsPartner { get { return (this.IsPet && this.EntityId >= MabiId.Partners); } }
 
 		public bool IsHuman { get { return (this.Race == 10001 || this.Race == 10002); } }
 		public bool IsElf { get { return (this.Race == 9001 || this.Race == 9002); } }
@@ -154,11 +154,11 @@ namespace Aura.Channel.World.Entities
 		// Combat
 		// ------------------------------------------------------------------
 
-		protected BattleStance _battleStance;
+		protected bool _battleStance;
 		/// <summary>
 		/// Changes stance and broadcasts update.
 		/// </summary>
-		public BattleStance BattleStance { get { return _battleStance; } set { _battleStance = value; Send.ChangeStance(this); } }
+		public bool IsInBattleStance { get { return _battleStance; } set { _battleStance = value; Send.ChangeStance(this); } }
 		public Creature Target { get; set; }
 
 		private int _stun;
@@ -581,7 +581,8 @@ namespace Aura.Channel.World.Entities
 				this.Regens.Add(Stat.Life, 0.12f, this.LifeMax);
 				this.Regens.Add(Stat.Mana, 0.05f, this.ManaMax);
 				this.Regens.Add(Stat.Stamina, 0.4f, this.StaminaMax);
-				this.Regens.Add(Stat.Hunger, 0.01f, this.StaminaMax);
+				if (ChannelServer.Instance.Conf.World.EnableHunger)
+					this.Regens.Add(Stat.Hunger, 0.01f, this.StaminaMax);
 				this.Regens.OnErinnDaytimeTick(ErinnTime.Now);
 
 				ChannelServer.Instance.Events.MabiTick += this.OnMabiTick;
@@ -768,25 +769,28 @@ namespace Aura.Channel.World.Entities
 
 			var sb = new StringBuilder();
 
-			if (weight != 0)
+			if (ChannelServer.Instance.Conf.World.YouAreWhatYouEat)
 			{
-				changes = true;
-				this.Weight += weight;
-				sb.Append(weight > 0 ? Localization.Get("You gained some weight.") : Localization.Get("You lost some weight.") + "\r\n");
-			}
+				if (weight != 0)
+				{
+					changes = true;
+					this.Weight += weight;
+					sb.Append(weight > 0 ? Localization.Get("You gained some weight.") : Localization.Get("You lost some weight.") + "\r\n");
+				}
 
-			if (upper != 0)
-			{
-				changes = true;
-				this.Upper += upper;
-				sb.Append(upper > 0 ? Localization.Get("Your upper body got bigger.") : Localization.Get("Your upper body got slimmer.") + "\r\n");
-			}
+				if (upper != 0)
+				{
+					changes = true;
+					this.Upper += upper;
+					sb.Append(upper > 0 ? Localization.Get("Your upper body got bigger.") : Localization.Get("Your upper body got slimmer.") + "\r\n");
+				}
 
-			if (lower != 0)
-			{
-				changes = true;
-				this.Lower += lower;
-				sb.Append(lower > 0 ? Localization.Get("Your legs got bigger.") : Localization.Get("Your legs got slimmer.") + "\r\n");
+				if (lower != 0)
+				{
+					changes = true;
+					this.Lower += lower;
+					sb.Append(lower > 0 ? Localization.Get("Your legs got bigger.") : Localization.Get("Your legs got slimmer.") + "\r\n");
+				}
 			}
 
 			if (life != 0)

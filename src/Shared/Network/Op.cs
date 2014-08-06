@@ -65,8 +65,11 @@ namespace Aura.Shared.Network
 		public const int DisconnectRequestR = 0x4E25;
 		public const int RequestClientDisconnect = 0x4E26;
 		public const int Disappear = 0x4E2A;
-		//public const int GoRebirth = 0x4E32;
+		public const int GoRebirth = 0x4E32;
+		public const int GoRebirthR = 0x4E33;
 		public const int WarpUnk1 = 0x4E39;
+		public const int RequestRebirth = 0x4E84;
+		public const int RequestRebirthR = 0x4E85;
 		public const int PonsUpdate = 0x4E8F; // b:2, i:amount, sent on login
 
 		public const int ChannelCharacterInfoRequest = 0x5208;
@@ -125,6 +128,8 @@ namespace Aura.Shared.Network
 		public const int ItemAmount = 0x59EA;
 		public const int UseItem = 0x59EB;
 		public const int UseItemR = 0x59EC;
+		public const int UnequipBag = 0x59F4;
+		public const int UnequipBagR = 0x59F5;
 
 		// [180300, NA166 (18.09.2013)] 2 new ops
 		//public const int ? = 0x59F8; // Request for that --v ?
@@ -161,6 +166,11 @@ namespace Aura.Shared.Network
 		public const int ForceRunTo = 0x659A;
 		public const int ForceWalkTo = 0x659B;
 		public const int EnterRegionRequestR = 0x659C; // on login
+		public const int UrlUpdateChronicle = 0x65A2;
+		public const int UrlUpdateAdvertise = 0x65A3;
+		public const int UrlUpdateGuestbook = 0x65A4;
+		public const int UrlUpdatePvp = 0x65A5;
+		public const int UrlUpdateDungeonBoard = 0x65A6;
 		public const int TakeOff = 0x65A8;
 		public const int TakingOff = 0x65A9;
 		public const int TakeOffR = 0x65AA;
@@ -188,6 +198,7 @@ namespace Aura.Shared.Network
 		public const int SkillStackSet = 0x6991;
 		public const int SkillStackUpdate = 0x6992;
 		public const int UseMotion = 0x6D62;
+		public const int PlayAnimation = 0x6D63; // s:data/.../anim/..., 1:0, 2:0, 1:0
 		public const int CancelMotion = 0x6D65;
 		public const int MotionCancel2 = 0x6D66; // Delayed?
 		public const int LevelUp = 0x6D69;
@@ -341,6 +352,7 @@ namespace Aura.Shared.Network
 		public const int DungeonInfo = 0x9470;
 		public const int ArenaRoundInfo = 0x9667;
 		public const int ArenaRoundInfoCancel = 0x9668;
+		public const int AgeUpEffect = 0x9858;
 
 		public const int ConditionUpdate = 0xA028;
 		public const int DyePaletteReq = 0xA418;
@@ -378,6 +390,7 @@ namespace Aura.Shared.Network
 		public const int EnableRoyalAlchemist = 0xA9A3;
 		public const int SosButtonRequest = 0xA9A9;
 		public const int SosButtonRequestR = 0xA9AA;
+		public const int SkillTeleport = 0xA9EC;
 
 		// [150000~180000] Something was added? Next two ops changed.
 

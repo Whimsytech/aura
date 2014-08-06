@@ -224,8 +224,8 @@ namespace Aura.Channel.Scripting.Scripts
 			this.Clear();
 			_state = AiState.Idle;
 
-			if (this.Creature.BattleStance == BattleStance.Ready)
-				this.Creature.BattleStance = BattleStance.Idle;
+			if (this.Creature.IsInBattleStance)
+				this.Creature.IsInBattleStance = false;
 
 			if (this.Creature.Target != null)
 			{
@@ -278,7 +278,7 @@ namespace Aura.Channel.Scripting.Scripts
 
 						_state = AiState.Alert;
 						_alertTime = DateTime.Now;
-						this.Creature.BattleStance = BattleStance.Ready;
+						this.Creature.IsInBattleStance = true;
 
 						Send.SetCombatTarget(this.Creature, this.Creature.Target.EntityId, TargetMode.Alert);
 					}
@@ -292,7 +292,7 @@ namespace Aura.Channel.Scripting.Scripts
 				}
 
 				// Switch to aggro from alert after the delay
-				if (_state == AiState.Alert && (_aggroType == AggroType.Aggressive || (_aggroType == AggroType.CarefulAggressive && this.Creature.Target.BattleStance == BattleStance.Ready) || (_aggroType > AggroType.Passive && !this.Creature.Target.IsPlayer)) && DateTime.Now >= _alertTime + _aggroDelay)
+				if (_state == AiState.Alert && (_aggroType == AggroType.Aggressive || (_aggroType == AggroType.CarefulAggressive && this.Creature.Target.IsInBattleStance) || (_aggroType > AggroType.Passive && !this.Creature.Target.IsPlayer)) && DateTime.Now >= _alertTime + _aggroDelay)
 				{
 					// Check aggro limit
 					var aggroCount = this.Creature.Region.CountAggro(this.Creature.Target, this.Creature.Race);
@@ -319,13 +319,9 @@ namespace Aura.Channel.Scripting.Scripts
 				return null;
 
 			// Random targetable creature
-			var potentialTargets = creatures.Where(target =>
-			{
-				return
-					this.Creature.CanTarget(target) &&
-					this.DoesHate(target) &&
-					!this.DoesLove(target);
-			}).ToList();
+			var potentialTargets = creatures.Where(target => this.Creature.CanTarget(target) &&
+			                                                 this.DoesHate(target) &&
+			                                                 !this.DoesLove(target)).ToList();
 
 			if (potentialTargets.Count == 0)
 				return null;
@@ -506,13 +502,7 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <returns></returns>
 		protected bool DoesHate(Creature target)
 		{
-			foreach (var tag in _hateTags.Values)
-			{
-				if (target.RaceData.HasTag(tag))
-					return true;
-			}
-
-			return false;
+			return _hateTags.Values.Any(tag => target.RaceData.HasTag(tag));
 		}
 
 		/// <summary>
@@ -522,13 +512,19 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <returns></returns>
 		protected bool DoesLove(Creature target)
 		{
-			foreach (var tag in _loveTags.Values)
-			{
-				if (target.RaceData.HasTag(tag))
-					return true;
-			}
+			return _loveTags.Values.Any(tag => target.RaceData.HasTag(tag));
+		}
 
-			return false;
+		/// <summary>
+		/// Returns true if there are collisions between the two positions.
+		/// </summary>
+		/// <param name="pos"></param>
+		/// <param name="pos"></param>
+		/// <returns></returns>
+		protected bool AnyCollisions(Position pos1, Position pos2)
+		{
+			Position intersection;
+			return this.Creature.Region.Collisions.Find(pos1, pos2, out intersection);
 		}
 
 		// Flow control
@@ -572,7 +568,7 @@ namespace Aura.Channel.Scripting.Scripts
 		protected void AggroCreature(Creature creature)
 		{
 			_state = AiState.Aggro;
-			this.Creature.BattleStance = BattleStance.Ready;
+			this.Creature.IsInBattleStance = true;
 			this.Creature.Target = creature;
 			Send.SetCombatTarget(this.Creature, this.Creature.Target.EntityId, TargetMode.Aggro);
 		}
@@ -698,7 +694,7 @@ namespace Aura.Channel.Scripting.Scripts
 
 			// Check for collision
 			Position intersection;
-			if (this.Creature.Region.Collissions.Find(pos, destination, out intersection))
+			if (this.Creature.Region.Collisions.Find(pos, destination, out intersection))
 				destination = pos.GetRelative(intersection, -10);
 
 			this.Creature.Move(destination, walk);

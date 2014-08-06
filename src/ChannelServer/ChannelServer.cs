@@ -84,7 +84,7 @@ namespace Aura.Channel
 			if (_running)
 				throw new Exception("Server is already running.");
 
-			CliUtil.WriteHeader("Channel Server", ConsoleColor.Magenta);
+			CliUtil.WriteHeader("Channel Server", ConsoleColor.DarkGreen);
 			CliUtil.LoadingTitle();
 
 			this.NavigateToRoot();
@@ -109,6 +109,10 @@ namespace Aura.Channel
 
 			// Skills
 			this.LoadSkills();
+
+			// Autoban
+			if (this.Conf.Autoban.Enabled)
+				this.Events.SecurityViolation += (e) => Autoban.Incident(e.Client, e.Level, e.Report, e.StackReport);
 
 			// Start
 			this.Server.Start(this.Conf.Channel.ChannelPort);
@@ -166,7 +170,7 @@ namespace Aura.Channel
 					// Challenge end
 					this.LoginServer.Socket.Receive(buffer);
 
-					// Inject login server intoto normal data receiving.
+					// Inject login server into normal data receiving.
 					this.Server.AddReceivingClient(this.LoginServer);
 
 					// Identify

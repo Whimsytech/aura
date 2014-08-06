@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Aura.Channel.Database;
 using Aura.Channel.Scripting;
+using Aura.Channel.Util;
 using Aura.Channel.World.Entities;
 using Aura.Shared.Network;
 
@@ -45,6 +46,35 @@ namespace Aura.Channel.Network
 			Creature creature;
 			this.Creatures.TryGetValue(id, out creature);
 			return creature;
+		}
+
+		/// <summary>
+		/// Returns creature or throws security exception if creature
+		/// couldn't be found in client.
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public Creature GetCreatureSafe(long id)
+		{
+			var result = this.GetCreature(id);
+			if (result == null)
+				throw new SevereViolation("Client doesn't control creature 0x{0:X}", id);
+
+			return result;
+		}
+
+		/// <summary>
+		/// Calls <see cref="GetCreatureSafe(long)"/> and then checks the pet's master for null.
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public Creature GetSummonedPetSafe(long id)
+		{
+			var pet = this.GetCreatureSafe(id);
+			if (pet.Master == null)
+				throw new ModerateViolation("Pet 0x{0:X} doesn't have a master.", id);
+
+			return pet;
 		}
 
 		/// <summary>

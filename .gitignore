@@ -14,7 +14,11 @@
 /user/scripts/*
 !/user/scripts/scripts_custom-example.txt
 
-/web/ui/storage/*
+/user/resources/*
+!/user/resources/readme.txt
+
+/user/save/*
+!/user/save/readme.txt
 
 #################
 ## Visual Studio

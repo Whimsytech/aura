@@ -15,8 +15,6 @@ namespace Aura.Channel.World.Entities
 	{
 		private static long _npcId = MabiId.Npcs;
 
-		public override EntityType EntityType { get { return EntityType.NPC; } }
-
 		public NpcScript Script { get; set; }
 		public AiScript AI { get; set; }
 		public int SpawnId { get; set; }
@@ -95,6 +93,33 @@ namespace Aura.Channel.World.Entities
 			this.SetLocation(regionId, x, y);
 
 			region.AddCreature(this);
+
+			return true;
+		}
+
+		/// <summary>
+		/// Like <see cref="Warp"/>, except it sends a screen flash
+		/// and sound effect to the departing region and arriving region.
+		/// </summary>
+		/// <param name="regionId"></param>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <remarks>Ideal for NPCs like Tarlach. Be careful not to "double flash"
+		/// if you're swapping two NPCs. Only ONE of the NPCs needs to use this method,
+		/// the other can use the regular <see cref="Warp"/>.</remarks>
+		/// <returns></returns>
+		public bool WarpFlash(int regionId, int x, int y)
+		{
+			// "Departing" effect
+			Send.Effect(this, Effect.ScreenFlash, 3000, 0);
+			Send.PlaySound(this, "data/sound/Tarlach_change.wav");
+
+			if (!this.Warp(regionId, x, y))
+				return false;
+
+			// "Arriving" effect
+			Send.Effect(this, Effect.ScreenFlash, 3000, 0);
+			Send.PlaySound(this, "data/sound/Tarlach_change.wav");
 
 			return true;
 		}

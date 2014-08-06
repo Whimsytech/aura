@@ -2,6 +2,7 @@
 // For more information, see license file in the main folder
 
 using Aura.Channel.Network.Sending;
+using Aura.Channel.Util;
 using Aura.Shared.Network;
 using Aura.Shared.Util;
 using Aura.Channel.World;
@@ -24,9 +25,7 @@ namespace Aura.Channel.Network.Handlers
 			var entityId = packet.GetLong();
 			var unkByte = packet.GetByte();
 
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-				return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			if (creature.Pet != null)
 			{
@@ -35,13 +34,7 @@ namespace Aura.Channel.Network.Handlers
 				return;
 			}
 
-			var pet = client.Account.GetPet(entityId);
-			if (pet == null)
-			{
-				Log.Warning("SummonPet: Failed to get pet '{0}', for '{1}'.", entityId.ToString("X16"), client.Account.Id);
-				Send.SummonPetR(creature, null);
-				return;
-			}
+			var pet = client.Account.GetPetSafe(entityId);
 
 			// Doesn't fix giant mount problems.
 			if (creature.IsGiant)
@@ -74,9 +67,7 @@ namespace Aura.Channel.Network.Handlers
 		{
 			var entityId = packet.GetLong();
 
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-				return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			var pet = creature.Pet;
 			if (pet == null || pet.EntityId != entityId)
@@ -119,9 +110,7 @@ namespace Aura.Channel.Network.Handlers
 			var entityId = packet.GetLong();
 			var action = (PetAction)packet.GetByte();
 
-			var pet = client.GetCreature(packet.Id);
-			if (pet == null)
-				return;
+			var pet = client.GetCreatureSafe(packet.Id);
 
 			//Send.Chat(pet, "...");
 
@@ -148,15 +137,11 @@ namespace Aura.Channel.Network.Handlers
 			var x = packet.GetInt();
 			var y = packet.GetInt();
 
-			var pet = client.GetCreature(packet.Id);
-			if (pet == null || pet.Master == null)
-				return;
+			var pet = client.GetSummonedPetSafe(packet.Id);
 
 			if (pet.Master.RegionId != pet.RegionId)
 			{
-				Log.Warning("Illegal pet teleport by '{0}'.", packet.Id.ToString("X16"));
-				Send.TelePetR(pet, false);
-				return;
+				throw new ModerateViolation("Illegal pet teleport");
 			}
 
 			pet.Warp(pet.RegionId, x, y);
@@ -189,30 +174,21 @@ namespace Aura.Channel.Network.Handlers
 			var y = packet.GetInt();
 
 			// Get creature
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null) return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			// Get pet
-			var pet = client.GetCreature(petEntityId);
-			if (pet == null || pet.Master == null)
-			{
-				Log.Warning("PutItemIntoPetInv: Player '{0}' tried to move item to invalid pet.", creature.Name);
-				goto L_Fail;
-			}
+			var pet = client.GetSummonedPetSafe(petEntityId);
 
 			// Get item
-			var item = creature.Inventory.GetItem(itemEntityId);
-			if (item == null)
-			{
-				Log.Warning("PutItemIntoPetInv: Player '{0}' tried to move invalid item to pet.", creature.Name);
-				goto L_Fail;
-			}
+			var item = creature.Inventory.GetItemSafe(itemEntityId);
 
 			// Check pocket
-			if (!pet.IsPartner && pocket != Pocket.Inventory)
+			// If the pet is a partner, limit pockets to normally accessible pockets
+			// TODO: Should really limit to equip + Inventory
+			// If the pet is not a partner, limit to inventory
+			if ((pet.IsPartner && !CreatureInventory.AccessiblePockets.Contains(pocket)) || (!pet.IsPartner && pocket != Pocket.Inventory))
 			{
-				Log.Warning("PutItemIntoPetInv: Player '{0}' tried to move item to invalid pocket '{1}'.", creature.Name, pocket);
-				goto L_Fail;
+				throw new ModerateViolation("Attempted to put an item into an invalid pet pocket ({0})", pocket);
 			}
 
 			// Try move
@@ -243,27 +219,13 @@ namespace Aura.Channel.Network.Handlers
 			var itemEntityId = packet.GetLong();
 
 			// Get creature
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-				return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			// Get pet
-			var pet = client.GetCreature(petEntityId);
-			if (pet == null || pet.Master == null)
-			{
-				Log.Warning("Player '{0}' tried to move item from invalid pet.", creature.Name);
-				Send.TakeItemFromPetInvR(creature, false);
-				return;
-			}
+			var pet = client.GetSummonedPetSafe(petEntityId);
 
 			// Get item
-			var item = pet.Inventory.GetItem(itemEntityId);
-			if (item == null)
-			{
-				Log.Warning("Player '{0}' tried to move invalid item from pet.", creature.Name);
-				Send.TakeItemFromPetInvR(creature, false);
-				return;
-			}
+			var item = pet.Inventory.GetItemSafe(itemEntityId);
 
 			// Try move
 			if (!pet.Inventory.MovePet(pet, item, creature, Pocket.Cursor, 0, 0))
@@ -287,11 +249,9 @@ namespace Aura.Channel.Network.Handlers
 		{
 			var mountEntityId = packet.GetLong();
 
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-				return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
-			var mount = client.GetCreature(mountEntityId);
+			var mount = creature.Region.GetCreature(mountEntityId);
 			if (mount == null || mount == creature)
 				return;
 
@@ -310,9 +270,7 @@ namespace Aura.Channel.Network.Handlers
 		[PacketHandler(Op.PetUnmount)]
 		public void PetUnmount(ChannelClient client, Packet packet)
 		{
-			var creature = client.GetCreature(packet.Id);
-			if (creature == null)
-				return;
+			var creature = client.GetCreatureSafe(packet.Id);
 
 			// ...
 
@@ -336,9 +294,7 @@ namespace Aura.Channel.Network.Handlers
 		{
 			var ai = packet.GetString();
 
-			var pet = client.GetCreature(packet.Id);
-			if (pet == null)
-				return;
+			var pet = client.GetCreatureSafe(packet.Id);
 
 			pet.Vars.Perm.PetAI = ai;
 		}
@@ -352,9 +308,7 @@ namespace Aura.Channel.Network.Handlers
 		[PacketHandler(Op.GetPetAi)]
 		public void GetPetAi(ChannelClient client, Packet packet)
 		{
-			var pet = client.GetCreature(packet.Id);
-			if (pet == null)
-				return;
+			var pet = client.GetCreatureSafe(packet.Id);
 
 			// Send back AI, default to OasisRulePassive on null.
 			Send.GetPetAiR(pet, pet.Vars.Perm.PetAI ?? "OasisRulePassive.xml");

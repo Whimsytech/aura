@@ -73,7 +73,7 @@ namespace Aura.Channel.Network.Sending
 			packet.PutInt(pos.X);
 			packet.PutInt(pos.Y);
 			packet.PutByte(creature.Direction);
-			packet.PutInt((int)creature.BattleStance);
+			packet.PutInt(Convert.ToInt32(creature.IsInBattleStance));
 			packet.PutByte((byte)creature.Inventory.WeaponSet);
 			packet.PutUInt(creature.Color1);
 			packet.PutUInt(creature.Color2);
@@ -193,6 +193,13 @@ namespace Aura.Channel.Network.Sending
 					packet.PutShort(0);			     // DualgunAttackMaxBaseMod
 					packet.PutShort(0);			     // DualgunWAttackMinBaseMod
 					packet.PutShort(0);			     // DualgunWAttackMaxBaseMod
+				}
+				// [180800, NA189 - 2014-07-23] Ninja?
+				{
+					packet.PutShort(0);			     // ? AttackMinBaseMod
+					packet.PutShort(0);			     // ? AttackMaxBaseMod
+					packet.PutShort(0);			     // ? WAttackMinBaseMod
+					packet.PutShort(0);			     // ? WAttackMaxBaseMod
 				}
 				packet.PutShort(0);			         // PoisonBase
 				packet.PutShort(0);			         // PoisonMod
@@ -702,7 +709,7 @@ namespace Aura.Channel.Network.Sending
 
 			// [150100] NPC options
 			// --------------------------------------------------------------
-			if (type == CreaturePacketType.Public && creature.Is(EntityType.NPC))
+			if (type == CreaturePacketType.Public && creature is NPC)
 			{
 				packet.PutShort(0);		         // OnlyShowFilter
 				packet.PutShort(0);		         // HideFilter
@@ -885,7 +892,7 @@ namespace Aura.Channel.Network.Sending
 					packet.PutInt(dest.Y);
 				}
 
-				if (creature.Is(EntityType.NPC))
+				if (creature is NPC)
 				{
 					packet.PutString(creature.StandStyleTalking);
 				}
@@ -964,7 +971,7 @@ namespace Aura.Channel.Network.Sending
 			packet.PutLong(character.CreationTime);
 			packet.PutLong(character.LastRebirth);
 			packet.PutString("");
-			packet.PutByte(0);
+			packet.PutByte(0); // "true" makes character lie on floor?
 			packet.PutByte(2);
 
 			// [150100] Pocket ExpireTime List
@@ -977,8 +984,8 @@ namespace Aura.Channel.Network.Sending
 				packet.PutShort(72);
 
 				// ?
-				packet.PutLong(0);
-				packet.PutShort(73);
+				//packet.PutLong(0);
+				//packet.PutShort(73);
 
 				packet.PutLong(0);
 			}
@@ -1069,6 +1076,10 @@ namespace Aura.Channel.Network.Sending
 			//packet.PutInt(creature.Talents.GetExp(TalentId.Medicine));
 			//packet.PutInt(creature.Talents.GetExp(TalentId.Carpentry));
 			// [180100] Zero Talent
+			{
+				packet.PutInt(0);
+			}
+			// [180800, NA189 - 2014-07-23] Ninja?
 			{
 				packet.PutInt(0);
 			}
@@ -1166,8 +1177,15 @@ namespace Aura.Channel.Network.Sending
 				packet.PutString(prop.State);
 				packet.PutLong(0);
 
-				packet.PutByte(true); // Extra data?
-				packet.PutString(prop.XML);
+				if (prop.HasXml)
+				{
+					packet.PutByte(true);
+					packet.PutString(prop.Xml.ToString());
+				}
+				else
+				{
+					packet.PutByte(false);
+				}
 
 				packet.PutInt(0);
 				packet.PutShort(0);
@@ -1176,7 +1194,17 @@ namespace Aura.Channel.Network.Sending
 			{
 				packet.PutString(prop.State);
 				packet.PutLong(DateTime.Now);
-				packet.PutByte(false);
+
+				if (prop.HasXml)
+				{
+					packet.PutByte(true);
+					packet.PutString(prop.Xml.ToString());
+				}
+				else
+				{
+					packet.PutByte(false);
+				}
+
 				packet.PutFloat(prop.Info.Direction);
 			}
 
@@ -1185,25 +1213,21 @@ namespace Aura.Channel.Network.Sending
 
 		private static Packet AddPropUpdateInfo(this Packet packet, Prop prop)
 		{
-			// Client side props (A0 range, instead of A1)
-			// look a bit different.
-			if (prop.ServerSide)
+			packet.PutString(prop.State);
+			packet.PutLong(DateTime.Now);
+
+			if (prop.HasXml)
 			{
-				packet.PutString(prop.State);
-				packet.PutLong(DateTime.Now);
 				packet.PutByte(true);
-				packet.PutString(prop.XML);
-				packet.PutFloat(prop.Info.Direction);
-				packet.PutShort(0);
+				packet.PutString(prop.Xml.ToString());
 			}
 			else
 			{
-				packet.PutString(prop.State);
-				packet.PutLong(DateTime.Now);
 				packet.PutByte(false);
-				packet.PutFloat(prop.Info.Direction);
-				packet.PutShort(0);
 			}
+
+			packet.PutFloat(prop.Info.Direction);
+			packet.PutShort(0);
 
 			return packet;
 		}

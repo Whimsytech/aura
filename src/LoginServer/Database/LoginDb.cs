@@ -9,6 +9,7 @@ using Aura.Shared.Mabi;
 using Aura.Shared.Mabi.Const;
 using Aura.Shared.Util;
 using MySql.Data.MySqlClient;
+using System.IO;
 using Aura.Data.Database;
 
 namespace Aura.Login.Database
@@ -22,23 +23,56 @@ namespace Aura.Login.Database
 		}
 
 		/// <summary>
-		/// Adds new account to the database.
+		/// Checks whether the SQL update file has been run already.
 		/// </summary>
-		/// <param name="accountId"></param>
-		/// <param name="password"></param>
-		public void CreateAccount(string accountId, string password)
+		/// <param name="filePath"></param>
+		/// <returns></returns>
+		public bool CheckUpdate(string filePath)
 		{
-			password = Password.Hash(password);
+			var name = Path.GetFileName(filePath);
 
 			using (var conn = AuraDb.Instance.Connection)
-			using (var cmd = new InsertCommand("INSERT INTO `accounts` {0}", conn))
+			using (var mc = new MySqlCommand("SELECT * FROM `updates` WHERE `path` = @path", conn))
 			{
-				cmd.Set("accountId", accountId);
-				cmd.Set("password", password);
-				cmd.Set("creation", DateTime.Now);
+				mc.Parameters.AddWithValue("@path", name);
 
-				cmd.Execute();
+				using (var reader = mc.ExecuteReader())
+					return reader.Read();
 			}
+		}
+
+		/// <summary>
+		/// Executes SQL update file.
+		/// </summary>
+		/// <param name="filePath"></param>
+		/// <returns></returns>
+		public bool RunUpdate(string filePath)
+		{
+			var name = Path.GetFileName(filePath);
+
+			try
+			{
+				using (var conn = AuraDb.Instance.Connection)
+				{
+					// Run update
+					using (var cmd = new MySqlCommand(File.ReadAllText(filePath), conn))
+						cmd.ExecuteNonQuery();
+
+					// Log update
+					using (var cmd = new InsertCommand("INSERT INTO `updates` {0}", conn))
+					{
+						cmd.Set("path", name);
+						cmd.Execute();
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Error("RunUpdate: Failed to run '{0}': {1}", name, ex.Message);
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -284,7 +318,7 @@ namespace Aura.Login.Database
 						character.Race = reader.GetInt32("race");
 						character.DeletionTime = reader.GetDateTimeSafe("deletionTime");
 						character.SkinColor = reader.GetByte("skinColor");
-						character.EyeType = reader.GetByte("eyeType");
+						character.EyeType = reader.GetInt16("eyeType");
 						character.EyeColor = reader.GetByte("eyeColor");
 						character.MouthType = reader.GetByte("mouthType");
 						character.Height = reader.GetFloat("height");
@@ -464,6 +498,8 @@ namespace Aura.Login.Database
 				cmd.Set("defense", creature.Defense);
 				cmd.Set("protection", creature.Protection);
 				cmd.Set("ap", creature.AP);
+				cmd.Set("creationTime", DateTime.Now);
+				cmd.Set("lastAging", DateTime.Now);
 
 				cmd.Execute();
 
