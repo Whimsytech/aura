@@ -32,6 +32,7 @@ namespace Aura.Channel.Scripting.Scripts
 	public class NpcShopScript : IScript
 	{
 		protected Dictionary<string, NpcShopTab> _tabs;
+		private static Dictionary<string, NpcShopScript> _shops;
 
 		/// <summary>
 		/// All tabs in the shop.
@@ -43,9 +44,14 @@ namespace Aura.Channel.Scripting.Scripts
 			_tabs = new Dictionary<string, NpcShopTab>();
 		}
 
+		static NpcShopScript()
+		{
+			_shops = new Dictionary<string, NpcShopScript>();
+		}
+
 		public bool Init()
 		{
-			if (ChannelServer.Instance.ScriptManager.ShopExists(this.GetType().Name))
+			if (Exists(this.GetType().Name))
 			{
 				Log.Error("NpcShop.Init: Duplicate '{0}'", this.GetType().Name);
 				return false;
@@ -53,7 +59,7 @@ namespace Aura.Channel.Scripting.Scripts
 
 			this.Setup();
 
-			ChannelServer.Instance.ScriptManager.AddShop(this);
+			_shops[this.GetType().Name] = this;
 
 			return true;
 		}
@@ -192,6 +198,36 @@ namespace Aura.Channel.Scripting.Scripts
 			creature.Temp.CurrentShop = this;
 
 			Send.OpenNpcShop(creature, this);
+		}
+
+		/// <summary>
+		/// Returns shop or null.
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
+		public static NpcShopScript Get(string typeName)
+		{
+			NpcShopScript result;
+			_shops.TryGetValue(typeName, out result);
+			return result;
+		}
+
+		/// <summary>
+		/// Returns true if shop of type exists.
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
+		public static bool Exists(string typeName)
+		{
+			return _shops.ContainsKey(typeName);
+		}
+
+		/// <summary>
+		/// Clears shop collection.
+		/// </summary>
+		public static void Clear()
+		{
+			_shops.Clear();
 		}
 	}
 

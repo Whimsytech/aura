@@ -389,7 +389,7 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <param name="shopType"></param>
 		protected void OpenShop(string shopType)
 		{
-			var shop = ChannelServer.Instance.ScriptManager.GetShop(shopType);
+			var shop = NpcShopScript.Get(shopType);
 			if (shop == null)
 			{
 				Log.Unimplemented("Missing shop: {0}", shopType);
