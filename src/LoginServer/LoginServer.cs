@@ -4,6 +4,7 @@
 using Aura.Login.Database;
 using Aura.Login.Network;
 using Aura.Login.Network.Handlers;
+using Aura.Login.Network.Packets;
 using Aura.Login.Util;
 using Aura.Login.Web;
 using Aura.Shared;
@@ -125,7 +126,8 @@ namespace Aura.Login
 				Log.Status("Channel '{0}' disconnected, switched to Maintenance.", client.Account.Name);
 				channel.State = ChannelState.Maintenance;
 
-				Send.ChannelUpdate();
+
+				ChannelStatus.Send();
 			}
 		}
 

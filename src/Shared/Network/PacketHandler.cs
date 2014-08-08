@@ -5,7 +5,7 @@ namespace Aura.Shared.Network
 {
 	public interface IPacketHandler<TClient> where TClient : BaseClient
 	{
-		void Handle(TClient client, Packet Packet);
+		void Handle(TClient client, Packet packet);
 	}
 
 	public interface IPacketSender

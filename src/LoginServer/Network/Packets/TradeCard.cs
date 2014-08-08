@@ -3,14 +3,10 @@
 
 using Aura.Data;
 using Aura.Login.Database;
-using Aura.Login.Network;
 using Aura.Shared.Mabi.Const;
 using Aura.Shared.Network;
 using Aura.Shared.Util;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Aura.Login.Network.Packets
 {

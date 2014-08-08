@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Aura.Login.Database;
+using Aura.Login.Network.Packets.Helpers;
 using Aura.Shared.Database;
 using Aura.Shared.Mabi;
 using Aura.Shared.Mabi.Const;
@@ -373,33 +374,6 @@ namespace Aura.Login.Network
 		}
 
 		/// <summary>
-		/// Sends Internal.ServerIdentifyR  to channel client.
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="success"></param>
-		public static void Internal_ServerIdentifyR(LoginClient client, bool success)
-		{
-			var packet = new Packet(Op.Internal.ServerIdentifyR, 0);
-			packet.PutByte(success);
-
-			client.Send(packet);
-		}
-
-		/// <summary>
-		/// Sends server/channel status update to all connected clients,
-		/// incl channels.
-		/// </summary>
-		public static void ChannelUpdate()
-		{
-			var packet = new Packet(Op.ChannelStatus, MabiId.Login);
-			packet.PutByte((byte)LoginServer.Instance.ServerList.List.Count);
-			foreach (var server in LoginServer.Instance.ServerList.List)
-				packet.Add(server);
-
-			LoginServer.Instance.Broadcast(packet);
-		}
-
-		/// <summary>
 		/// Sends Internal.Broadcast to all channel servers.
 		/// </summary>
 		public static void Internal_Broadcast(string message)
@@ -408,35 +382,6 @@ namespace Aura.Login.Network
 			packet.PutString(message);
 
 			LoginServer.Instance.BroadcastChannels(packet);
-		}
-
-		/// <summary>
-		/// Adds server and channel information to packet.
-		/// </summary>
-		/// <param name="packet"></param>
-		/// <param name="server"></param>
-		private static void Add(this Packet packet, ServerInfo server)
-		{
-			packet.PutString(server.Name);
-			packet.PutShort(0); // Server type?
-			packet.PutShort(0);
-			packet.PutByte(1);
-
-			// Channels
-			// ----------------------------------------------------------
-			packet.PutInt((int)server.Channels.Count);
-			foreach (var channel in server.Channels.Values)
-			{
-				var state = channel.State;
-				if ((DateTime.Now - channel.LastUpdate).TotalSeconds > 90)
-					state = ChannelState.Maintenance;
-
-				packet.PutString(channel.Name);
-				packet.PutInt((int)state);
-				packet.PutInt((int)channel.Events);
-				packet.PutInt(0); // 1 for Housing? Hidden?
-				packet.PutShort(channel.Stress);
-			}
 		}
 
 		/// <summary>
