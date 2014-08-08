@@ -19,7 +19,7 @@ namespace Aura.Shared.Network
 
 		private Dictionary<int, PacketHandlerFunc> _handlers;
 
-		public PacketHandlerManager()
+		protected PacketHandlerManager()
 		{
 			_handlers = new Dictionary<int, PacketHandlerFunc>();
 		}
