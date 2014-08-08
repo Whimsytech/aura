@@ -19,6 +19,8 @@ namespace Aura.Channel.Scripting.Scripts
 {
 	public class QuestScript : GeneralScript
 	{
+		private static Dictionary<int, QuestScript> _questScripts;
+
 		public int Id { get; set; }
 
 		public string Name { get; set; }
@@ -45,11 +47,16 @@ namespace Aura.Channel.Scripting.Scripts
 			this.MetaData = new MabiDictionary();
 		}
 
+		static QuestScript()
+		{
+			_questScripts = new Dictionary<int, QuestScript>();
+		}
+
 		public override bool Init()
 		{
 			this.Load();
 
-			if (this.Id == 0 || ChannelServer.Instance.ScriptManager.QuestScriptExists(this.Id))
+			if (this.Id == 0 || Exists(this.Id))
 			{
 				Log.Error("{1}.Init: Invalid id or already in use ({0}).", this.Id, this.GetType().Name);
 				return false;
@@ -66,7 +73,7 @@ namespace Aura.Channel.Scripting.Scripts
 
 			this.MetaData.SetString("QSTTIP", "N_{0}|D_{1}|A_|R_{2}|T_0", this.Name, this.Description, string.Join(", ", this.Rewards));
 
-			ChannelServer.Instance.ScriptManager.AddQuestScript(this);
+			_questScripts[this.Id] = this;
 
 			return true;
 		}
@@ -339,6 +346,28 @@ namespace Aura.Channel.Scripting.Scripts
 		private void OnPlayerCompletesQuest(Creature character, int questId)
 		{
 			this.CheckPrerequisites(character);
+		}
+
+		/// <summary>
+		/// Returs quest data or null.
+		/// </summary>
+		/// <param name="questId"></param>
+		/// <returns></returns>
+		public static QuestScript Get(int questId)
+		{
+			QuestScript script;
+			_questScripts.TryGetValue(questId, out script);
+			return script;
+		}
+
+		/// <summary>
+		/// Returns true if quest with the given id exists.
+		/// </summary>
+		/// <param name="questId"></param>
+		/// <returns></returns>
+		public static bool Exists(int questId)
+		{
+			return _questScripts.ContainsKey(questId);
 		}
 	}
 
