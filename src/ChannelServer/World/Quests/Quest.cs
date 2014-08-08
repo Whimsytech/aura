@@ -89,7 +89,7 @@ namespace Aura.Channel.World.Quests
 			this.UniqueId = uniqueId;
 			this.State = state;
 
-			this.Data = ChannelServer.Instance.ScriptManager.GetQuestScript(this.Id);
+			this.Data = QuestScript.Get(this.Id);
 			if (this.Data == null)
 				throw new Exception("Quest '" + questId.ToString() + "' does not exist.");
 

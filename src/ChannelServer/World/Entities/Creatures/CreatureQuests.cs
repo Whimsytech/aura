@@ -10,6 +10,7 @@ using Aura.Channel.World.Quests;
 using Aura.Channel.Network.Sending;
 using Aura.Shared.Util;
 using Aura.Shared.Mabi.Const;
+using Aura.Channel.Scripting.Scripts;
 
 namespace Aura.Channel.World.Entities.Creatures
 {
@@ -127,7 +128,7 @@ namespace Aura.Channel.World.Entities.Creatures
 				this.GiveUp(existingQuest);
 
 			// Check for quest script
-			var questScript = ChannelServer.Instance.ScriptManager.GetQuestScript(questId);
+			var questScript = QuestScript.Get(questId);
 			if (questScript == null)
 				throw new Exception("Quest '" + questId.ToString() + "' does not exist.");
 

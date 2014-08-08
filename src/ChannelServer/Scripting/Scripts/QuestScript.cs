@@ -369,6 +369,15 @@ namespace Aura.Channel.Scripting.Scripts
 		{
 			return _questScripts.ContainsKey(questId);
 		}
+
+		/// <summary>
+		/// Clears quest script collection.
+		/// </summary>
+		/// <returns></returns>
+		public static void Clear()
+		{
+			_questScripts.Clear();
+		}
 	}
 
 	public enum Receive
