@@ -2,16 +2,11 @@
 // For more information, see license file in the main folder
 
 using Aura.Shared.Network;
-using Aura.Shared.Mabi;
-using Aura.Shared.Util;
-using System;
-using Aura.Login.Database;
 
-namespace Aura.Login.Network.Handlers
+namespace Aura.Login.Network.Packets.Internal
 {
-	public partial class LoginServerHandlers : PacketHandlerManager<LoginClient>
+	public class Internal_BroadcastNotice : IPacketHandler<LoginClient>
 	{
-
 		/// <summary>
 		/// Sent from channels to forward it to all others,
 		/// message to broadcast
@@ -20,7 +15,7 @@ namespace Aura.Login.Network.Handlers
 		/// 001 [................] String : test
 		/// </example>
 		[PacketHandler(Op.Internal.BroadcastNotice)]
-		public void Broadcast(LoginClient client, Packet packet)
+		public void Handle(LoginClient client, Packet packet)
 		{
 			LoginServer.Instance.BroadcastChannels(packet);
 		}

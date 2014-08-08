@@ -70,12 +70,12 @@
     <Compile Include="Network\Handlers\Disconnect.cs" />
     <Compile Include="Network\Handlers\Gifts.cs" />
     <Compile Include="Network\Handlers\Deletion.cs" />
-    <Compile Include="Network\Handlers\Internal.cs" />
     <Compile Include="Network\Handlers\Login.cs" />
     <Compile Include="Network\LoginClient.cs" />
     <Compile Include="LoginServer.cs" />
     <Compile Include="Network\Packets\ChannelStatus.cs" />
     <Compile Include="Network\Packets\Helpers\ServerInfoHelper.cs" />
+    <Compile Include="Network\Packets\Internal\Internal_BroadcastNotice.cs" />
     <Compile Include="Network\Packets\Internal\Internal_ChannelStatus.cs" />
     <Compile Include="Network\Packets\Internal\Internal_ServerIdentify.cs" />
     <Compile Include="Network\Send.cs" />
