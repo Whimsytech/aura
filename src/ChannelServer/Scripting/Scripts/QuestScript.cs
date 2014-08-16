@@ -237,10 +237,9 @@ namespace Aura.Channel.Scripting.Scripts
 			if (this.ReceiveMethod != Receive.Automatically || character.Quests.Has(this.Id))
 				return false;
 
-			foreach (var prerequisite in this.Prerequisites)
+			if (this.Prerequisites.Any(prerequisite => !prerequisite.Met(character)))
 			{
-				if (!prerequisite.Met(character))
-					return false;
+				return false;
 			}
 
 			character.Quests.Start(this.Id);
@@ -279,7 +278,7 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <summary>
 		/// Updates collect objectives.
 		/// </summary>
-		/// <param name="creatue"></param>
+		/// <param name="character"></param>
 		/// <param name="itemId"></param>
 		/// <param name="amount"></param>
 		private void OnPlayerReceivesOrRemovesItem(Creature character, int itemId, int amount)
@@ -311,7 +310,7 @@ namespace Aura.Channel.Scripting.Scripts
 		/// Updates reach rank objectives.
 		/// </summary>
 		/// <param name="creature"></param>
-		/// <param name="killer"></param>
+		/// <param name="skill"></param>
 		private void OnSkillRankChanged(Creature creature, Skill skill)
 		{
 			if (creature == null || skill == null) return;

@@ -58,11 +58,10 @@ namespace Aura.Channel.Skills.Combat
 			{
 				var weapon = (i == 1 ? rightWeapon : leftWeapon);
 
-				var cap = new CombatActionPack(attacker, skill.Info.Id);
 				var aAction = new AttackerAction(CombatActionType.Hit, attacker, skill.Info.Id, targetEntityId);
 				var tAction = new TargetAction(CombatActionType.TakeHit, target, attacker, skill.Info.Id);
-				cap.Add(aAction, tAction);
 
+				var cap = new CombatActionPack(attacker, skill.Info.Id, aAction, tAction);
 				cap.Hit = i;
 				cap.MaxHits = maxHits;
 				cap.PrevId = prevId;
@@ -76,34 +75,17 @@ namespace Aura.Channel.Skills.Combat
 				// Base damage
 				var damage = attacker.GetRndDamage(weapon);
 
-				// Crit...
+				// Critical Hit
+				SkillHelper.HandleCritical(attacker, attacker.GetCritChanceFor(target), ref damage, tAction);
 
-				// Defense...
+				// Subtract target def/prot
+				SkillHelper.HandleDefenseProtection(target, ref damage);
+
+				// Defense
+				SkillHelper.HandleDefense(aAction, tAction, ref damage);
 
 				// Mana Shield
-				if (target.Conditions.Has(ConditionsA.ManaShield))
-				{
-					var manaShield = target.Skills.Get(SkillId.ManaShield);
-					if (manaShield != null) // Checks for things that should never ever happen, yay.
-					{
-						// Var 1 = Efficiency
-						var manaDamage = damage / manaShield.RankData.Var1;
-						if (target.Mana >= manaDamage)
-							damage = 0;
-						else
-						{
-							damage -= (manaDamage - target.Mana) * manaShield.RankData.Var1;
-							manaDamage = target.Mana;
-						}
-
-						target.Mana -= manaDamage;
-
-						if (target.Mana <= 0)
-							ChannelServer.Instance.SkillManager.GetHandler<StartStopSkillHandler>(SkillId.ManaShield).Stop(target, manaShield);
-
-						tAction.ManaDamage = manaDamage;
-					}
-				}
+				SkillHelper.HandleManaShield(target, ref damage, tAction);
 
 				// Deal with it!
 				if (damage > 0)
@@ -112,9 +94,12 @@ namespace Aura.Channel.Skills.Combat
 				// Evaluate caused damage
 				if (!target.IsDead)
 				{
-					target.KnockBack += this.GetKnockBack(weapon) / maxHits;
-					if (target.KnockBack >= 100 && target.Is(RaceStands.KnockBackable))
-						tAction.Set(tAction.Has(TargetOptions.Critical) ? TargetOptions.KnockDown : TargetOptions.KnockBack);
+					if (tAction.Type != CombatActionType.Defended)
+					{
+						target.KnockBack += this.GetKnockBack(weapon) / maxHits;
+						if (target.KnockBack >= 100 && target.Is(RaceStands.KnockBackable))
+							tAction.Set(tAction.Has(TargetOptions.Critical) ? TargetOptions.KnockDown : TargetOptions.KnockBack);
+					}
 				}
 				else
 				{
@@ -127,7 +112,7 @@ namespace Aura.Channel.Skills.Combat
 					var newPos = attacker.GetPosition().GetRelative(targetPosition, KnockBackDistance);
 
 					Position intersection;
-					if (target.Region.Collissions.Find(targetPosition, newPos, out intersection))
+					if (target.Region.Collisions.Find(targetPosition, newPos, out intersection))
 						newPos = targetPosition.GetRelative(intersection, -50);
 
 					target.SetPosition(newPos.X, newPos.Y);
@@ -138,8 +123,11 @@ namespace Aura.Channel.Skills.Combat
 				}
 
 				// Set stun time
-				aAction.Stun = this.GetAttackerStun(weapon, tAction.IsKnockBack);
-				tAction.Stun = this.GetTargetStun(weapon, tAction.IsKnockBack);
+				if (tAction.Type != CombatActionType.Defended)
+				{
+					aAction.Stun = this.GetAttackerStun(weapon, tAction.IsKnockBack);
+					tAction.Stun = this.GetTargetStun(weapon, tAction.IsKnockBack);
+				}
 
 				// Second hit doubles stun time for normal hits
 				if (cap.Hit == 2 && !tAction.IsKnockBack)
@@ -158,7 +146,7 @@ namespace Aura.Channel.Skills.Combat
 		/// <summary>
 		/// Returns stun time for the attacker.
 		/// </summary>
-		/// <param name="weaponSpeed"></param>
+		/// <param name="weapon"></param>
 		/// <param name="knockback"></param>
 		/// <returns></returns>
 		public short GetAttackerStun(Item weapon, bool knockback)
@@ -179,7 +167,7 @@ namespace Aura.Channel.Skills.Combat
 		/// <summary>
 		/// Returns stun time for the target.
 		/// </summary>
-		/// <param name="weaponSpeed"></param>
+		/// <param name="weapon"></param>
 		/// <param name="knockback"></param>
 		/// <returns></returns>
 		public short GetTargetStun(Item weapon, bool knockback)

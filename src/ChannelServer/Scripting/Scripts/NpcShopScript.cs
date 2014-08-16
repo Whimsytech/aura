@@ -80,7 +80,7 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <summary>
 		/// Adds empty tabs.
 		/// </summary>
-		/// <param name="tabTitle"></param>
+		/// <param name="tabTitles"></param>
 		/// <returns></returns>
 		public void Add(params string[] tabTitles)
 		{
@@ -244,10 +244,5 @@ namespace Aura.Channel.Scripting.Scripts
 			_items.TryGetValue(entityId, out result);
 			return result;
 		}
-	}
-
-	// Backwards compatibility
-	public class NpcShop : NpcShopScript
-	{
 	}
 }

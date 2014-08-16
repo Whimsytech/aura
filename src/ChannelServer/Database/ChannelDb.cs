@@ -7,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using Aura.Channel.Network;
 using Aura.Channel.Scripting;
 using Aura.Channel.Skills;
+using Aura.Channel.Util;
 using Aura.Channel.World;
 using Aura.Channel.World.Entities;
 using Aura.Channel.World.Entities.Creatures;
@@ -20,6 +22,7 @@ using Aura.Shared.Mabi;
 using Aura.Shared.Mabi.Const;
 using Aura.Shared.Util;
 using MySql.Data.MySqlClient;
+using Aura.Channel.World.Inventory;
 
 namespace Aura.Channel.Database
 {
@@ -58,6 +61,26 @@ namespace Aura.Channel.Database
 						account.Id = reader.GetStringSafe("accountId");
 						account.SessionKey = reader.GetInt64("sessionKey");
 						account.Authority = reader.GetByte("authority");
+						account.AutobanCount = reader.GetInt32("autobanCount");
+						account.AutobanScore = reader.GetInt32("autobanScore");
+						account.LastAutobanReduction = reader.GetDateTimeSafe("lastAutobanReduction");
+
+						// We don't need to decrease their score if it's already zero!
+						if (account.AutobanScore > 0 && ChannelServer.Instance.Conf.Autoban.ReductionTime.Ticks != 0)
+						{
+							var elapsed = DateTime.Now - account.LastAutobanReduction;
+							var delta = (int)(elapsed.TotalMinutes / ChannelServer.Instance.Conf.Autoban.ReductionTime.TotalMinutes);
+
+							// Adding a -delta means they're a time traveller! =*O*=
+							// It would also increase their score.
+							if (delta < 0)
+							{
+								account.AutobanScore -= delta;
+								// We add the delta to prevent rapid logins/outs from affecting the score
+								account.LastAutobanReduction = account.LastAutobanReduction.Add(
+									TimeSpan.FromMinutes((long)(ChannelServer.Instance.Conf.Autoban.ReductionTime.TotalMinutes * delta)));
+							}
+						}
 					}
 				}
 
@@ -155,7 +178,9 @@ namespace Aura.Channel.Database
 		/// Returns creature by entityId from table.
 		/// </summary>
 		/// <typeparam name="TCreature"></typeparam>
+		/// <param name="account"></param>
 		/// <param name="entityId"></param>
+		/// <param name="table"></param>
 		/// <returns></returns>
 		private TCreature GetCharacter<TCreature>(Account account, long entityId, string table) where TCreature : PlayerCreature, new()
 		{
@@ -202,6 +227,11 @@ namespace Aura.Channel.Database
 					character.AbilityPoints = reader.GetInt16("ap");
 					character.Age = reader.GetInt16("age");
 					character.State = (CreatureStates)reader.GetUInt32("state");
+
+					character.CreationTime = reader.GetDateTimeSafe("creationTime");
+					character.LastRebirth = reader.GetDateTimeSafe("lastRebirth");
+					character.LastLogin = reader.GetDateTimeSafe("lastLogin");
+					character.LastAging = reader.GetDateTimeSafe("lastAging");
 
 					character.LifeFoodMod = reader.GetFloat("lifeFood");
 					character.ManaFoodMod = reader.GetFloat("manaFood");
@@ -270,12 +300,23 @@ namespace Aura.Channel.Database
 		private void GetCharacterItems(PlayerCreature character)
 		{
 			var items = this.GetItems(character.CreatureId);
+
+			// Create bag pockets
+			foreach (var item in items.Where(a => a.OptionInfo.LinkedPocketId != Pocket.None))
+				character.Inventory.Add(new InventoryPocketNormal(item.OptionInfo.LinkedPocketId, item.Data.BagWidth, item.Data.BagHeight));
+
 			foreach (var item in items)
 			{
-				if (!character.Inventory.InitAdd(item))
+				// Ignore items that were in bags that don't exist anymore.
+				if (item.Info.Pocket >= Pocket.ItemBags && item.Info.Pocket <= Pocket.ItemBagsMax && !character.Inventory.Has(item.Info.Pocket))
 				{
-					Log.Error("GetCharacterItems: Unable to add item '{0}' ({1}) to inventory.", item.Info.Id, item.EntityId);
+					Log.Debug("GetCharacterItems: Item '{0}' ({1}) is inside a bag that hasn't been loaded yet.", item.Info.Id, item.EntityIdHex);
+					continue;
 				}
+
+				// Try to add item
+				if (!character.Inventory.InitAdd(item))
+					Log.Error("GetCharacterItems: Unable to add item '{0}' ({1}) to inventory.", item.Info.Id, item.EntityId);
 			}
 		}
 
@@ -289,7 +330,9 @@ namespace Aura.Channel.Database
 			var result = new List<Item>();
 
 			using (var conn = AuraDb.Instance.Connection)
-			using (var mc = new MySqlCommand("SELECT * FROM `items` WHERE `creatureId` = @creatureId", conn))
+			// Sort descending by linkedPocket to get bags first, they have
+			// to be created before the items can be added.
+			using (var mc = new MySqlCommand("SELECT * FROM `items` WHERE `creatureId` = @creatureId ORDER BY `linkedPocket` DESC", conn))
 			{
 				mc.Parameters.AddWithValue("@creatureId", creatureId);
 
@@ -325,6 +368,7 @@ namespace Aura.Channel.Database
 						item.OptionInfo.Experience = reader.GetInt16("experience");
 						item.MetaData1.Parse(reader.GetStringSafe("meta1"));
 						item.MetaData2.Parse(reader.GetStringSafe("meta2"));
+						item.OptionInfo.LinkedPocketId = (Pocket)reader.GetByte("linkedPocket");
 
 						result.Add(item);
 					}
@@ -355,7 +399,7 @@ namespace Aura.Channel.Database
 				}
 			}
 
-			if (character.Is(EntityType.Character))
+			if (character is Character)
 			{
 				// Default
 				character.Keywords.Add("personal_info");
@@ -435,7 +479,7 @@ namespace Aura.Channel.Database
 			// hidden ones for now
 			// TODO: Move to race skill db.
 			character.Skills.Add(SkillId.CombatMastery, SkillRank.RF, character.Race);
-			if (character.Is(EntityType.Character))
+			if (character is Character)
 			{
 				character.Skills.Add(SkillId.HiddenEnchant, SkillRank.Novice, character.Race);
 				character.Skills.Add(SkillId.HiddenResurrection, SkillRank.Novice, character.Race);
@@ -567,6 +611,23 @@ namespace Aura.Channel.Database
 			}
 		}
 
+		public void LogSecurityIncident(ChannelClient client, IncidentSeverityLevel level, string report, string stacktrace)
+		{
+			using (var conn = AuraDb.Instance.Connection)
+			using (var cmd = new InsertCommand("INSERT INTO `log_security` {0}", conn))
+			{
+				cmd.Set("accountId", client.Account.Id);
+				cmd.Set("characterId", client.Controlling == null ? null : (long?)(client.Controlling.EntityId));
+				cmd.Set("ipAddress", client.Address);
+				cmd.Set("date", DateTime.Now);
+				cmd.Set("level", (int)level);
+				cmd.Set("report", report);
+				cmd.Set("stacktrace", stacktrace);
+
+				cmd.Execute();
+			}
+		}
+
 		/// <summary>
 		/// Saves all quests of character.
 		/// </summary>
@@ -647,6 +708,9 @@ namespace Aura.Channel.Database
 				cmd.Set("lastlogin", account.LastLogin);
 				cmd.Set("banReason", account.BanReason);
 				cmd.Set("banExpiration", account.BanExpiration);
+				cmd.Set("autobanCount", account.AutobanCount);
+				cmd.Set("autobanScore", account.AutobanScore);
+				cmd.Set("lastAutobanReduction", account.LastAutobanReduction);
 
 				cmd.Execute();
 			}
@@ -664,6 +728,7 @@ namespace Aura.Channel.Database
 		/// Saves creature and all its data.
 		/// </summary>
 		/// <param name="creature"></param>
+		/// <param name="account"></param>
 		public void SaveCharacter(PlayerCreature creature, Account account)
 		{
 			using (var conn = AuraDb.Instance.Connection)
@@ -713,6 +778,13 @@ namespace Aura.Channel.Database
 				cmd.Set("title", creature.Titles.SelectedTitle);
 				cmd.Set("optionTitle", creature.Titles.SelectedOptionTitle);
 				cmd.Set("state", (uint)creature.State);
+				cmd.Set("age", creature.Age);
+
+				cmd.Set("lastAging", creature.LastAging);
+				if (creature.LastRebirth != DateTime.MinValue)
+					cmd.Set("lastRebirth", creature.LastRebirth);
+				if (creature.LastLogin != DateTime.MinValue)
+					cmd.Set("lastLogin", creature.LastLogin);
 
 				cmd.Execute();
 			}

@@ -80,6 +80,7 @@
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\Op.cs" />
     <Compile Include="Network\PacketHandlerManager.cs" />
+    <Compile Include="Network\Sending\Helpers\ServerInfoHelper.cs" />
     <Compile Include="Network\ServerInfo.cs" />
     <Compile Include="Network\ServerInfoManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -103,9 +104,6 @@
     <Compile Include="Util\RandomProvider.cs" />
     <Compile Include="ServerMain.cs" />
     <Compile Include="Util\String.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Data\Data.csproj">

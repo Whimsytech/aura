@@ -33,7 +33,7 @@ namespace Aura.Channel.Skills.Music
 			ChannelServer.Instance.Events.CreatureAttackedByPlayer += this.OnCreatureAttackedByPlayer;
 		}
 
-		public void Prepare(Creature creature, Skill skill, Packet packet)
+		public void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
 		{
 			var rnd = RandomProvider.Get();
 
@@ -249,8 +249,7 @@ namespace Aura.Channel.Skills.Music
 		/// <summary>
 		/// Called when a player attacks someone (training).
 		/// </summary>
-		/// <param name="creature"></param>
-		/// <param name="attacker"></param>
+		/// <param name="action"></param>
 		protected virtual void OnCreatureAttackedByPlayer(TargetAction action)
 		{
 			// Check for instrument in attacker's right hand

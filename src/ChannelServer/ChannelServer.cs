@@ -1,21 +1,22 @@
 ﻿// Copyright (c) Aura development team - Licensed under GNU GPL
 // For more information, see license file in the main folder
 
-using System;
-using System.Net.Sockets;
-using System.Threading;
+using Aura.Channel.Database;
 using Aura.Channel.Network;
 using Aura.Channel.Network.Handlers;
 using Aura.Channel.Network.Sending;
 using Aura.Channel.Scripting;
+using Aura.Channel.Skills;
 using Aura.Channel.Util;
 using Aura.Channel.Util.Configuration;
 using Aura.Channel.World;
+using Aura.Shared;
 using Aura.Shared.Network;
 using Aura.Shared.Util;
-using Aura.Channel.Skills;
 using Aura.Shared.Util.Configuration;
-using Aura.Channel.Database;
+using System;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace Aura.Channel
 {
@@ -84,7 +85,7 @@ namespace Aura.Channel
 			if (_running)
 				throw new Exception("Server is already running.");
 
-			CliUtil.WriteHeader("Channel Server", ConsoleColor.Magenta);
+			CliUtil.WriteHeader("Channel Server", ConsoleColor.DarkGreen);
 			CliUtil.LoadingTitle();
 
 			this.NavigateToRoot();
@@ -109,6 +110,10 @@ namespace Aura.Channel
 
 			// Skills
 			this.LoadSkills();
+
+			// Autoban
+			if (this.Conf.Autoban.Enabled)
+				this.Events.SecurityViolation += (e) => Autoban.Incident(e.Client, e.Level, e.Report, e.StackReport);
 
 			// Start
 			this.Server.Start(this.Conf.Channel.ChannelPort);
@@ -166,7 +171,7 @@ namespace Aura.Channel
 					// Challenge end
 					this.LoginServer.Socket.Receive(buffer);
 
-					// Inject login server intoto normal data receiving.
+					// Inject login server into normal data receiving.
 					this.Server.AddReceivingClient(this.LoginServer);
 
 					// Identify

@@ -84,7 +84,8 @@ namespace Aura.Login.Network.Handlers
 			channel.LastUpdate = DateTime.Now;
 			channel.State = state;
 
-			Send.ChannelUpdate();
+			Send.ChannelStatus(LoginServer.Instance.ServerList.List);
+			Send.Internal_ChannelStatus(LoginServer.Instance.ServerList.List);
 		}
 
 		/// <summary>
@@ -97,11 +98,7 @@ namespace Aura.Login.Network.Handlers
 		[PacketHandler(Op.Internal.BroadcastNotice)]
 		public void Broadcast(LoginClient client, Packet packet)
 		{
-			// TODO: Forward packet once Packet class is cleaned up.
-
-			var notice = packet.GetString();
-
-			Send.Internal_Broadcast(notice);
+			LoginServer.Instance.BroadcastChannels(packet);
 		}
 	}
 }

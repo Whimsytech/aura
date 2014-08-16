@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Aura.Channel.Util;
 using Aura.Channel.World.Entities;
 using Aura.Channel.Scripting;
 
@@ -27,6 +28,53 @@ namespace Aura.Channel.Database
 
 		public ScriptVariables Vars { get; protected set; }
 
+		private int _autobanScore;
+		private int _autobanCount;
+
+		/// <summary>
+		/// Account's current Autoban score. Don't set this directly
+		/// as Autoban takes care of it.
+		/// </summary>
+		public int AutobanScore
+		{
+			get
+			{
+				return _autobanScore;
+			}
+			internal set
+			{
+				if (value < 0)
+					value = 0;
+
+				_autobanScore = value;
+			}
+		}
+
+		/// <summary>
+		/// Account's current Autoban count. Don't set this directly
+		/// as Autoban takes care of it.
+		/// </summary>
+		public int AutobanCount
+		{
+			get
+			{
+				return _autobanCount;
+			}
+			internal set
+			{
+				if (value < 0)
+					value = 0;
+
+				_autobanCount = value;
+			}
+		}
+
+		/// <summary>
+		/// Last time this account had its autoban score reduced.
+		/// Don't set this directly, as Autoban takes care of it.
+		/// </summary>
+		public DateTime LastAutobanReduction { get; internal set; }
+
 		public Account()
 		{
 			this.Characters = new List<Character>();
@@ -44,9 +92,27 @@ namespace Aura.Channel.Database
 			return result;
 		}
 
-		public PlayerCreature GetPet(long entityId)
+		public PlayerCreature GetCharacterOrPetSafe(long entityId)
+		{
+			var r = this.GetCharacterOrPet(entityId);
+			if (r == null)
+				throw new SevereViolation("Account doesn't contain character 0x{0:X}", entityId);
+
+			return r;
+		}
+
+		public Pet GetPet(long entityId)
 		{
 			return this.Pets.FirstOrDefault(a => a.EntityId == entityId);
+		}
+
+		public Pet GetPetSafe(long entityId)
+		{
+			var r = this.GetPet(entityId);
+			if (r == null)
+				throw new SevereViolation("Account doesn't contain pet 0x{0:X}", entityId);
+
+			return r;
 		}
 	}
 }

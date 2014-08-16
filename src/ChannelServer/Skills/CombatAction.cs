@@ -78,6 +78,12 @@ namespace Aura.Channel.Skills
 			this.SkillId = skillId;
 		}
 
+		public CombatActionPack(Creature attacker, SkillId skillId, params CombatAction[] actions)
+			: this(attacker, skillId)
+		{
+			this.Add(actions);
+		}
+
 		/// <summary>
 		/// Adds combat actions.
 		/// </summary>
@@ -100,10 +106,6 @@ namespace Aura.Channel.Skills
 				Send.StatUpdate(action.Creature, StatUpdateType.Private, Stat.Life, Stat.LifeInjured, Stat.Mana);
 				Send.StatUpdate(action.Creature, StatUpdateType.Public, Stat.Life, Stat.LifeInjured);
 
-				// Cancel defense if applicable
-				if (action.Is(CombatActionType.Defended))
-					action.Creature.Skills.CancelActiveSkill();
-
 				// If target action
 				if (action.Category == CombatActionCategory.Target)
 				{
@@ -111,9 +113,10 @@ namespace Aura.Channel.Skills
 
 					// Mana Shield flag
 					if (tAction.ManaDamage > 0 && tAction.Damage == 0)
-						tAction.Options |= TargetOptions.ManaShield;
+						tAction.Set(TargetOptions.ManaShield);
 
-					// CreatureAttackedByPlayer event
+					// On attack events
+					ChannelServer.Instance.Events.OnCreatureAttack(tAction);
 					if (this.Attacker.IsPlayer)
 						ChannelServer.Instance.Events.OnCreatureAttackedByPlayer(tAction);
 
@@ -124,6 +127,10 @@ namespace Aura.Channel.Skills
 						npc.AI.OnHit(tAction);
 					}
 				}
+
+				// Cancel defense if applicable
+				if (action.Is(CombatActionType.Defended))
+					action.Creature.Skills.CancelActiveSkill();
 			}
 
 			// Send combat action
@@ -270,6 +277,15 @@ namespace Aura.Channel.Skills
 		public float ManaDamage { get; set; }
 
 		/// <summary>
+		/// Skill used by the attacker
+		/// </summary>
+		/// <remarks>
+		/// SkillId might be changed during skill handling (e.g. because of
+		/// Defense). In that case we need a "backup".
+		/// </remarks>
+		public SkillId AttackerSkillId { get; set; }
+
+		/// <summary>
 		/// Returns true if any option involving knocking back/down is
 		/// active, including finishers.
 		/// </summary>
@@ -286,6 +302,7 @@ namespace Aura.Channel.Skills
 			this.Creature = creature;
 			this.Attacker = attacker;
 			this.SkillId = skillId;
+			this.AttackerSkillId = skillId;
 		}
 
 		/// <summary>

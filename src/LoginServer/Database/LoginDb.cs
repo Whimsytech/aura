@@ -9,6 +9,8 @@ using Aura.Shared.Mabi;
 using Aura.Shared.Mabi.Const;
 using Aura.Shared.Util;
 using MySql.Data.MySqlClient;
+using System.IO;
+using Aura.Data.Database;
 
 namespace Aura.Login.Database
 {
@@ -21,22 +23,50 @@ namespace Aura.Login.Database
 		}
 
 		/// <summary>
-		/// Adds new account to the database.
+		/// Checks whether the SQL update file has already been applied.
 		/// </summary>
-		/// <param name="accountId"></param>
-		/// <param name="password"></param>
-		public void CreateAccount(string accountId, string password)
+		/// <param name="updateFile"></param>
+		/// <returns></returns>
+		public bool CheckUpdate(string updateFile)
 		{
-			password = Password.Hash(password);
-
 			using (var conn = AuraDb.Instance.Connection)
-			using (var cmd = new InsertCommand("INSERT INTO `accounts` {0}", conn))
+			using (var mc = new MySqlCommand("SELECT * FROM `updates` WHERE `path` = @path", conn))
 			{
-				cmd.Set("accountId", accountId);
-				cmd.Set("password", password);
-				cmd.Set("creation", DateTime.Now);
+				mc.Parameters.AddWithValue("@path", updateFile);
 
-				cmd.Execute();
+				using (var reader = mc.ExecuteReader())
+					return reader.Read();
+			}
+		}
+
+		/// <summary>
+		/// Executes SQL update file.
+		/// </summary>
+		/// <param name="updateFile"></param>
+		public void RunUpdate(string updateFile)
+		{
+			try
+			{
+				using (var conn = AuraDb.Instance.Connection)
+				{
+					// Run update
+					using (var cmd = new MySqlCommand(File.ReadAllText(Path.Combine("sql", updateFile)), conn))
+						cmd.ExecuteNonQuery();
+
+					// Log update
+					using (var cmd = new InsertCommand("INSERT INTO `updates` {0}", conn))
+					{
+						cmd.Set("path", updateFile);
+						cmd.Execute();
+					}
+
+					Log.Info("Successfully applied '{0}'.", updateFile);
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Error("RunUpdate: Failed to run '{0}': {1}", updateFile, ex.Message);
+				CliUtil.Exit(1);
 			}
 		}
 
@@ -283,9 +313,10 @@ namespace Aura.Login.Database
 						character.Race = reader.GetInt32("race");
 						character.DeletionTime = reader.GetDateTimeSafe("deletionTime");
 						character.SkinColor = reader.GetByte("skinColor");
-						character.EyeType = reader.GetByte("eyeType");
+						character.EyeType = reader.GetInt16("eyeType");
 						character.EyeColor = reader.GetByte("eyeColor");
 						character.MouthType = reader.GetByte("mouthType");
+						character.State = (CreatureStates)reader.GetUInt32("state");
 						character.Height = reader.GetFloat("height");
 						character.Weight = reader.GetFloat("weight");
 						character.Upper = reader.GetFloat("upper");
@@ -445,6 +476,7 @@ namespace Aura.Login.Database
 				cmd.Set("eyeType", creature.EyeType);
 				cmd.Set("eyeColor", creature.EyeColor);
 				cmd.Set("mouthType", creature.MouthType);
+				cmd.Set("state", (uint)creature.State);
 				cmd.Set("height", creature.Height);
 				cmd.Set("weight", creature.Weight);
 				cmd.Set("upper", creature.Upper);
@@ -463,6 +495,8 @@ namespace Aura.Login.Database
 				cmd.Set("defense", creature.Defense);
 				cmd.Set("protection", creature.Protection);
 				cmd.Set("ap", creature.AP);
+				cmd.Set("creationTime", DateTime.Now);
+				cmd.Set("lastAging", DateTime.Now);
 
 				cmd.Execute();
 
@@ -475,6 +509,8 @@ namespace Aura.Login.Database
 		/// </summary>
 		/// <param name="creatureId"></param>
 		/// <param name="items"></param>
+		/// <param name="conn"></param>
+		/// <param name="transaction"></param>
 		private void AddItems(long creatureId, List<Item> items, MySqlConnection conn, MySqlTransaction transaction)
 		{
 			foreach (var item in items)
@@ -587,6 +623,43 @@ namespace Aura.Login.Database
 				cmd.Set("authority", level);
 
 				return (cmd.Execute() > 0);
+			}
+		}
+
+		/// <summary>
+		/// Adds trade item and points of card to character.
+		/// </summary>
+		/// <param name="targetCharacter"></param>
+		/// <param name="charCard"></param>
+		public void TradeCard(Character targetCharacter, CharCardData charCard)
+		{
+			using (var conn = AuraDb.Instance.Connection)
+			using (var cmd = new InsertCommand("INSERT INTO `items` {0}", conn))
+			{
+				cmd.Set("creatureId", targetCharacter.CreatureId);
+				cmd.Set("itemId", charCard.TradeItem);
+				cmd.Set("pocket", Pocket.Temporary);
+				cmd.Set("color1", 0x808080);
+				cmd.Set("color2", 0x808080);
+				cmd.Set("color3", 0x808080);
+
+				cmd.Execute();
+			}
+
+			// TODO: Add points (pons)...
+		}
+
+		/// <summary>
+		/// Unsets creature's Initialized creature state flag.
+		/// </summary>
+		/// <param name="creatureId"></param>
+		public void UninitializeCreature(long creatureId)
+		{
+			using (var conn = AuraDb.Instance.Connection)
+			using (var mc = new MySqlCommand("UPDATE `creatures` SET `state` = `state` & ~1 WHERE `creatureId` = @creatureId", conn))
+			{
+				mc.Parameters.AddWithValue("@creatureId", creatureId);
+				mc.ExecuteNonQuery();
 			}
 		}
 	}

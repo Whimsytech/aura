@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using Aura.Shared.Mabi.Structs;
 using Aura.Shared.Mabi.Const;
 using System.Threading;
@@ -22,6 +23,8 @@ namespace Aura.Channel.World.Entities
 	{
 		private static long _propId = MabiId.ServerProps;
 
+		private XElement _xml;
+
 		public override DataType DataType { get { return DataType.Prop; } }
 
 		public PropInfo Info;
@@ -33,6 +36,11 @@ namespace Aura.Channel.World.Entities
 		/// *sigh* Yes, we're checking the id, happy now, devCAT? .__.
 		/// </remarks>
 		public bool ServerSide { get { return (this.EntityId >= MabiId.ServerProps); } }
+
+		/// <summary>
+		/// Returns true if prop is not server sided and has a state or extra data.
+		/// </summary>
+		public bool ModifiedClientSide { get { return !this.ServerSide && (this.State != "" || this.HasXml); } }
 
 		/// <summary>
 		/// Called when a player interacts with the prop (touch, attack).
@@ -48,11 +56,11 @@ namespace Aura.Channel.World.Entities
 		public string State { get; set; }
 
 		/// <summary>
-		/// XML with additional options.
+		/// Xml with additional options.
 		/// </summary>
-		public string XML { get; set; }
+		public XElement Xml { get { return _xml ?? (_xml = new XElement("xml")); } }
 
-		public override EntityType EntityType { get { return Entities.EntityType.Prop; } }
+		public bool HasXml { get { return _xml != null; } }
 
 		public override int RegionId
 		{
@@ -66,20 +74,19 @@ namespace Aura.Channel.World.Entities
 		}
 
 		public Prop(string name, string title, string extra, int id, int region, int x, int y, float direction, float scale = 1, float altitude = 0)
-			: this(0, name, title, extra, id, region, x, y, direction, scale, altitude)
+			: this(0, name, title, id, region, x, y, direction, scale, altitude)
 		{
 			this.EntityId = Interlocked.Increment(ref _propId);
 			this.EntityId += (long)region << 32;
 			this.EntityId += AuraData.RegionInfoDb.GetAreaId(region, x, y) << 16;
 		}
 
-		public Prop(long entityId, string name, string title, string extra, int id, int region, int x, int y, float direction, float scale = 1, float altitude = 0)
+		public Prop(long entityId, string name, string title, int id, int region, int x, int y, float direction, float scale = 1, float altitude = 0)
 		{
 			this.EntityId = entityId;
 
 			this.Name = name;
 			this.Title = title;
-			this.XML = extra;
 
 			this.Info.Id = id;
 			this.Info.Region = region;

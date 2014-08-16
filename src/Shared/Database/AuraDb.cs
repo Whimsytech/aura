@@ -4,6 +4,7 @@
 using System;
 using MySql.Data.MySqlClient;
 using System.Text.RegularExpressions;
+using Aura.Shared.Mabi;
 
 namespace Aura.Shared.Database
 {
@@ -85,6 +86,26 @@ namespace Aura.Shared.Database
 		}
 
 		/// <summary>
+		/// Adds new account to the database.
+		/// </summary>
+		/// <param name="accountId"></param>
+		/// <param name="password"></param>
+		public void CreateAccount(string accountId, string password)
+		{
+			password = Password.Hash(password);
+
+			using (var conn = AuraDb.Instance.Connection)
+			using (var cmd = new InsertCommand("INSERT INTO `accounts` {0}", conn))
+			{
+				cmd.Set("accountId", accountId);
+				cmd.Set("password", password);
+				cmd.Set("creation", DateTime.Now);
+
+				cmd.Execute();
+			}
+		}
+
+		/// <summary>
 		/// Adds card to database and returns it as Card.
 		/// </summary>
 		/// <param name="accountId"></param>
@@ -110,6 +131,7 @@ namespace Aura.Shared.Database
 		/// Returns true if the name is valid and available.
 		/// </summary>
 		/// <param name="name"></param>
+		/// <param name="serverName"></param>
 		/// <returns></returns>
 		public NameCheckResult NameOkay(string name, string serverName)
 		{

@@ -22,7 +22,7 @@ namespace Aura.Data
 	{
 		private int _min;
 
-		public DatabaseCsvBase()
+		protected DatabaseCsvBase()
 		{
 			var attr = this.GetType().GetMethod("ReadEntry", BindingFlags.NonPublic | BindingFlags.Instance).GetCustomAttributes(typeof(MinFieldCountAttribute), true);
 			if (attr.Length > 0)
@@ -74,8 +74,7 @@ namespace Aura.Data
 	{
 		public override IEnumerator<TInfo> GetEnumerator()
 		{
-			foreach (var entry in this.Entries)
-				yield return entry;
+			return ((IEnumerable<TInfo>)this.Entries).GetEnumerator();
 		}
 
 		public override void Clear()
@@ -93,8 +92,7 @@ namespace Aura.Data
 	{
 		public override IEnumerator<TInfo> GetEnumerator()
 		{
-			foreach (var entry in this.Entries.Values)
-				yield return entry;
+			return ((IEnumerable<TInfo>)this.Entries.Values).GetEnumerator();
 		}
 
 		public TInfo Find(TIndex key)

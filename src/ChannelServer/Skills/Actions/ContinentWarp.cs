@@ -36,7 +36,7 @@ namespace Aura.Channel.Skills.Actions
 	/// TODO: Research destinations and how they overwrite each other.
 	/// </remarks>
 	[Skill(SkillId.ContinentWarp)]
-	public class ContinentWarpSkillHandler : IPreparable, IUseable, ICompletable, ICancelable
+	public class ContinentWarp : IPreparable, IUseable, ICompletable, ICancelable
 	{
 		private enum Continent : byte
 		{
@@ -45,7 +45,7 @@ namespace Aura.Channel.Skills.Actions
 			Belvast = 2,
 		}
 
-		public void Prepare(Creature creature, Skill skill, Packet packet)
+		public void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
 		{
 			if (!ChannelServer.Instance.Conf.World.EnableContinentWarp)
 			{
@@ -55,7 +55,7 @@ namespace Aura.Channel.Skills.Actions
 			}
 
 			creature.Skills.ActiveSkill = skill;
-			Send.SkillReady(creature, skill.Info.Id, "");
+			Send.SkillReady(creature, skill.Info.Id);
 		}
 
 		public void Use(Creature creature, Skill skill, Packet packet)

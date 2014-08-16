@@ -8,6 +8,7 @@ using System.Text;
 using Aura.Channel.Scripting.Scripts;
 using Aura.Channel.World.Entities;
 using Aura.Shared.Network;
+using Aura.Channel.Network.Sending.Helpers;
 
 namespace Aura.Channel.Network.Sending
 {
@@ -84,8 +85,7 @@ namespace Aura.Channel.Network.Sending
 		/// <summary>
 		/// Sends NpcTalkKeywordR to creature's client.
 		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="success"></param>
+		/// <param name="creature"></param>
 		/// <param name="keyword">Negative response if null</param>
 		public static void NpcTalkKeywordR(Creature creature, string keyword)
 		{

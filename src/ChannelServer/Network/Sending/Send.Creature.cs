@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Aura.Data;
 using Aura.Shared.Mabi.Structs;
+using Aura.Channel.Network.Sending.Helpers;
 
 namespace Aura.Channel.Network.Sending
 {
@@ -117,13 +118,14 @@ namespace Aura.Channel.Network.Sending
 		{
 			// Private
 			StatUpdate(creature, StatUpdateType.Private,
+				Stat.Height, Stat.Upper, Stat.Lower,
 				Stat.Life, Stat.LifeInjured, Stat.LifeMax, Stat.LifeMaxMod,
 				Stat.Stamina, Stat.Hunger, Stat.StaminaMax, Stat.StaminaMaxMod,
 				Stat.Mana, Stat.ManaMax, Stat.ManaMaxMod,
 				Stat.Str, Stat.Dex, Stat.Int, Stat.Luck, Stat.Will,
 				Stat.StrMod, Stat.DexMod, Stat.IntMod, Stat.LuckMod, Stat.WillMod,
 				Stat.DefenseBaseMod, Stat.DefenseMod, Stat.ProtectionBaseMod, Stat.ProtectionMod,
-				Stat.Level, Stat.Experience, Stat.AbilityPoints, Stat.CombatPower
+				Stat.Level, Stat.Experience, Stat.AbilityPoints, Stat.CombatPower, Stat.Age
 			);
 
 			// Public
@@ -257,6 +259,8 @@ namespace Aura.Channel.Network.Sending
 						case Stat.WAttackMaxBaseMod: packet.PutShort((short)creature.WAttackMaxBase); break;
 						case Stat.AttackMinMod: packet.PutShort((short)creature.AttackMinMod); break;
 						case Stat.AttackMaxMod: packet.PutShort((short)creature.AttackMaxMod); break;
+
+						case Stat.Age: packet.PutShort((short)creature.Age); break;
 
 						// Client might crash with a mismatching value, 
 						// take a chance and put an int by default.
@@ -424,4 +428,6 @@ namespace Aura.Channel.Network.Sending
 			creature.Region.Broadcast(packet, creature);
 		}
 	}
+
+	public enum StatUpdateType : byte { Private = 3, Public = 4 }
 }

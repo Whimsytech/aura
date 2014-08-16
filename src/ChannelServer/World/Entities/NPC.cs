@@ -15,8 +15,6 @@ namespace Aura.Channel.World.Entities
 	{
 		private static long _npcId = MabiId.Npcs;
 
-		public override EntityType EntityType { get { return EntityType.NPC; } }
-
 		public NpcScript Script { get; set; }
 		public AiScript AI { get; set; }
 		public int SpawnId { get; set; }
@@ -99,6 +97,33 @@ namespace Aura.Channel.World.Entities
 			return true;
 		}
 
+		/// <summary>
+		/// Like <see cref="Warp"/>, except it sends a screen flash
+		/// and sound effect to the departing region and arriving region.
+		/// </summary>
+		/// <param name="regionId"></param>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <remarks>Ideal for NPCs like Tarlach. Be careful not to "double flash"
+		/// if you're swapping two NPCs. Only ONE of the NPCs needs to use this method,
+		/// the other can use the regular <see cref="Warp"/>.</remarks>
+		/// <returns></returns>
+		public bool WarpFlash(int regionId, int x, int y)
+		{
+			// "Departing" effect
+			Send.Effect(this, Effect.ScreenFlash, 3000, 0);
+			Send.PlaySound(this, "data/sound/Tarlach_change.wav");
+
+			if (!this.Warp(regionId, x, y))
+				return false;
+
+			// "Arriving" effect
+			Send.Effect(this, Effect.ScreenFlash, 3000, 0);
+			Send.PlaySound(this, "data/sound/Tarlach_change.wav");
+
+			return true;
+		}
+
 		public override bool CanTarget(Creature creature)
 		{
 			if (!base.CanTarget(creature))
@@ -143,8 +168,18 @@ namespace Aura.Channel.World.Entities
 		/// <returns></returns>
 		protected override bool ShouldSurvive(float damage, Creature from, float lifeBefore)
 		{
-			// Actual formula unknown.
-			return ((this.Will * 10) + RandomProvider.Get().Next(1001)) > 999;
+			// No surviving once you're in deadly
+			if (lifeBefore < 0)
+				return false;
+
+			if (!ChannelServer.Instance.Conf.World.DeadlyNpcs)
+				return false;
+
+			// Chance = Will/10, capped at 50%
+			// (i.e 80 Will = 8%, 500+ Will = 50%)
+			// Actual formula unknown
+			var chance = Math.Min(50, this.Will / 10);
+			return (RandomProvider.Get().Next(101) < chance);
 		}
 
 		/// <summary>
