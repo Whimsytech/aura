@@ -23,6 +23,8 @@ namespace Aura.Channel.Scripting.Scripts
 {
 	public abstract class NpcScript : GeneralScript
 	{
+		public static HashSet<string> Names = new HashSet<string>();
+
 		private string _response;
 		private SemaphoreSlim _resumeSignal;
 		private CancellationTokenSource _cancellation;
@@ -145,14 +147,31 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <returns></returns>
 		public override bool Init()
 		{
+			// Load NPC defaults
 			this.NPC = new NPC();
 			this.NPC.State = CreatureStates.Npc | CreatureStates.NamedNpc | CreatureStates.GoodNpc;
 			this.NPC.ScriptType = this.GetType();
 			this.NPC.LoadDefault();
 			this.NPC.AI = ChannelServer.Instance.ScriptManager.GetAi("npc_normal", this.NPC);
 
+			// Run load method, which sets the NPC up
 			this.Load();
 
+			// Enforce unique names
+			var name = this.NPC.Name;
+			var i = 1;
+			while (Names.Contains(this.NPC.Name))
+			{
+				this.NPC.Name = name + "@duplicate" + i.ToString();
+				i++;
+			}
+
+			if (name != this.NPC.Name)
+				Log.Warning("Duplicate NPC name, '{0}' renamed to '{1}' in '{2}'.", name, this.NPC.Name, this.GetType().Name);
+
+			Names.Add(this.NPC.Name);
+
+			// Spawn NPC
 			if (this.NPC.RegionId > 0)
 			{
 				var region = ChannelServer.Instance.World.GetRegion(this.NPC.RegionId);
@@ -576,6 +595,20 @@ namespace Aura.Channel.Scripting.Scripts
 		protected void SetName(string name)
 		{
 			this.NPC.Name = name;
+		}
+
+		/// <summary>
+		/// Appends string to NPC's name, prefixed by an @, so it's not displayed.
+		/// </summary>
+		/// <param name="str"></param>
+		protected void SetIdentifier(string str)
+		{
+			// Remove previous identifier
+			int idx = this.NPC.Name.IndexOf('@');
+			if (idx > -1) this.NPC.Name = this.NPC.Name.Substring(0, idx);
+
+			// Append
+			this.NPC.Name += "@" + str;
 		}
 
 		/// <summary>

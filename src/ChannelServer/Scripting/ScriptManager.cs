@@ -101,6 +101,7 @@ namespace Aura.Channel.Scripting
 			_scriptsToDispose.Clear();
 
 			ChannelServer.Instance.World.RemoveScriptedEntities();
+			NpcScript.Names.Clear();
 
 			this.Load();
 		}

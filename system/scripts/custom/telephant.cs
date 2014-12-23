@@ -134,27 +134,27 @@ public class _TelephantBaseScript : NpcScript
 	}
 }
 
-public class TelephantAvonScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(501, 65355, 63105, 125); } }
-public class TelephantBangorScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(31, 11634, 12285, 0); } }
-public class TelephantBangorAScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(84, 12887, 7657, 60); } }
-public class TelephantBelvastScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(4005, 63661, 25973, 80); } }
-public class TelephantCalidaScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(3400, 328767, 176263, 210); } }
-public class TelephantCeoScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(56, 8250, 9340, 0); } }
-public class TelephantCobhScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(23, 28773, 37705, 130); } }
-public class TelephantCorScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(3300, 254100, 187111, 215); } }
-public class TelephantCrossroadScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(51, 10040, 10317, 0); } }
-public class TelephantDunScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(14, 38000, 39629, 190); } }
-public class TelephantEmainScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(52, 39948, 41431, 80); } }
-public class TelephantFaliasScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(500, 11770, 23458, 50); } }
-public class TelephantFiliaScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(3100, 374015, 424585, 95); } }
-public class TelephantGairechAScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(83, 38366, 47743, 190); } }
-public class TelephantMoonScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(1003, 6868, 7008, 220); } }
-public class TelephantMoon2Script : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(1003, 20843, 20083, 100); } }
-public class TelephantNekoScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(600, 93654, 88089, 30); } }
-public class TelephantQuillaScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(3001, 166788, 168716, 95); } }
-public class TelephantSoulStreamScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(1000, 5678, 7193, 0); } }
-public class TelephantTailScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(300, 212336, 194269, 200); } }
-public class TelephantTaraScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(401, 100092, 91201, 125); } }
-public class TelephantTirScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(1, 13189, 38776, 160); } }
-public class TelephantTirAScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(35, 13585, 38385, 125); } }
-public class TelephantValesScript : _TelephantBaseScript { public override void Load() { base.Load(); SetLocation(3200, 289848, 212069, 140); } }
+public class TelephantAvonScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("avon"); SetLocation(501, 65355, 63105, 125); } }
+public class TelephantBangorScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("bangor"); SetLocation(31, 11634, 12285, 0); } }
+public class TelephantBangorAScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("bangorA"); SetLocation(84, 12887, 7657, 60); } }
+public class TelephantBelvastScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("belvast"); SetLocation(4005, 63661, 25973, 80); } }
+public class TelephantCalidaScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("calida"); SetLocation(3400, 328767, 176263, 210); } }
+public class TelephantCeoScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("ceo"); SetLocation(56, 8250, 9340, 0); } }
+public class TelephantCobhScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("cobh"); SetLocation(23, 28773, 37705, 130); } }
+public class TelephantCorScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("cor"); SetLocation(3300, 254100, 187111, 215); } }
+public class TelephantCrossroadScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("crossroad"); SetLocation(51, 10040, 10317, 0); } }
+public class TelephantDunScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("dunbarton"); SetLocation(14, 38000, 39629, 190); } }
+public class TelephantEmainScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("emain"); SetLocation(52, 39948, 41431, 80); } }
+public class TelephantFaliasScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("falias"); SetLocation(500, 11770, 23458, 50); } }
+public class TelephantFiliaScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("filia"); SetLocation(3100, 374015, 424585, 95); } }
+public class TelephantGairechAScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("gairech"); SetLocation(83, 38366, 47743, 190); } }
+public class TelephantMoonScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("moon"); SetLocation(1003, 6868, 7008, 220); } }
+public class TelephantMoon2Script : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("moon2"); SetLocation(1003, 20843, 20083, 100); } }
+public class TelephantNekoScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("nekojima"); SetLocation(600, 93654, 88089, 30); } }
+public class TelephantQillaScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("qilla"); SetLocation(3001, 166788, 168716, 95); } }
+public class TelephantSoulStreamScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("soulStream"); SetLocation(1000, 5678, 7193, 0); } }
+public class TelephantTailScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("taillteann"); SetLocation(300, 212336, 194269, 200); } }
+public class TelephantTaraScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("tara"); SetLocation(401, 100092, 91201, 125); } }
+public class TelephantTirScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("tir"); SetLocation(1, 13189, 38776, 160); } }
+public class TelephantTirAScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("tirA"); SetLocation(35, 13585, 38385, 125); } }
+public class TelephantValesScript : _TelephantBaseScript { public override void Load() { base.Load(); SetIdentifier("vales"); SetLocation(3200, 289848, 212069, 140); } }
