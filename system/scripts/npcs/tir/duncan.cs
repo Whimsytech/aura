@@ -21,12 +21,6 @@ public class DuncanBaseScript : NpcScript
 		EquipItem(Pocket.Armor, 15004, 0x5E3E48, 0xD4975C, 0x3D3645);
 		EquipItem(Pocket.Shoe, 17021, 0xCBBBAD);
 
-		AddGreeting(0, "Welcome to Tir Chonaill.");
-		AddGreeting(1, "What did you say your name was again...?<br/>Anyway, welcome.");
-		AddGreeting(2, "<username/>, I could recognize you from afar.");
-		AddGreeting(6, "I was just thinking... <username/> should be visiting right about now.");
-		AddGreeting(7, "Hoho, I will definitely remember your face, <username/>!");
-
 		AddPhrase("Ah, that bird in the tree is still sleeping.");
 		AddPhrase("Ah, who knows how many days are left in these old bones?");
 		AddPhrase("Everything appears to be fine, but something feels off.");
@@ -48,25 +42,54 @@ public class DuncanBaseScript : NpcScript
 			"As he speaks, his voice resonates with a kind of gentle authority."
 		);
 		
-		Msg("Please let me know if you need anything.", Button("Start Conversation", "@talk"), Button("Shop", "@shop"), Button("Retrive Lost Items", "@lostandfound"));
+		var msg = "Please let me know if you need anything.";
+		var buttons = "<button title='Start a Conversation' keyword='@talk'/><button title='Shop' keyword='@shop'/><button title='Retrieve Lost Items' keyword='@lostandfound'/>";
 		
-		switch(await Select())
+		if(Hooked)
 		{
-			case "@talk":
-				Greet();
-				await StartConversation();
-				break;
-				
-			case "@shop":
-				Msg("Choose a quest you would like to do.");
-				OpenShop("DuncanShop");
-				return;
-				
-			case "@lostandfound":
-				Msg("If you are knocked unconcious in a dungeon or field, any item you've dropped will be lost unless you get resurrected right at the spot.<br/>Lost items can usually be recovered from a Town Office or a Lost-and-Found.");
-				Msg("Unfortunatly, Tir Chonaill does not have a Town Office, so I run the Lost-and-Found myself.<br/>The lost items are recovered with magic,<br/>so unless you've dropped them on purpose, you can recover those items with their blessings intact.<br/>You will, however, need to pay a fee.");
-				Msg("As you can see, I have limited space in my home. So I can only keep 20 items for you.<br/>If there are more than 20 lost items, I'll have to throw out the oldest items to make room.<br/>I strongly suggest you retrieve any lost items you don't want to lose as soon as possible.");
-				break;
+			msg = "If you have anything else to ask, let me know.";
+			buttons = "<button title='End Conversation' keyword='@end'/>" + buttons;
+		}
+		
+		Msg(msg + buttons);
+		var reply = await Select();
+		
+		if(reply == "@talk")
+		{
+			if(Memory == 0)
+				Msg("Welcome to Tir Chonaill.");
+			else if(Memory == 1)
+				Msg("What did you say your name was again...?<br/>Anyway, welcome.");
+			else if(Memory == 2)
+				Msg("<username/>, I could recognize you from afar.");
+			else if(Memory < 7)
+				Msg("I was just thinking... <username/> should be visiting right about now.");
+			else
+				Msg("Hoho, I will definitely remember your face, <username/>!");
+			
+			// This would handle the relation update currently to be found in Greet.
+			//UpdateRelation();
+
+			// We could probably make a method for this, needed in most NPCs.
+			Msg("<title name='NONE'/>" + FavorExpression() + GetMoodString());
+			
+			// Reaction to G1 title and maybe others?
+			if (Title == 11002)
+				Msg("...");
+			
+			await Conversation();
+		}
+		else if(reply == "@shop")
+		{
+			Msg("Choose a quest you would like to do.");
+			OpenShop("DuncanShop");
+			return;
+		}
+		else if(reply == "@lostandfound")
+		{
+			Msg("If you are knocked unconcious in a dungeon or field, any item you've dropped will be lost unless you get resurrected right at the spot.<br/>Lost items can usually be recovered from a Town Office or a Lost-and-Found.");
+			Msg("Unfortunatly, Tir Chonaill does not have a Town Office, so I run the Lost-and-Found myself.<br/>The lost items are recovered with magic,<br/>so unless you've dropped them on purpose, you can recover those items with their blessings intact.<br/>You will, however, need to pay a fee.");
+			Msg("As you can see, I have limited space in my home. So I can only keep 20 items for you.<br/>If there are more than 20 lost items, I'll have to throw out the oldest items to make room.<br/>I strongly suggest you retrieve any lost items you don't want to lose as soon as possible.");
 		}
 		
 		End();

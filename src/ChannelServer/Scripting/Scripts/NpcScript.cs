@@ -50,6 +50,12 @@ namespace Aura.Channel.Scripting.Scripts
 		}
 
 		/// <summary>
+		/// Gets or sets whether the NPC had any hooks executed in the last
+		/// call to <see cref="Hook"/>.
+		/// </summary>
+		public bool Hooked { get; set; }
+
+		/// <summary>
 		/// Gets or sets how well the NPC remembers the player.
 		/// </summary>
 		public int Memory
@@ -830,9 +836,15 @@ namespace Aura.Channel.Scripting.Scripts
 		/// <returns></returns>
 		protected async Task Hook(string hookName, params object[] args)
 		{
+			this.Hooked = false;
+
 			foreach (var hook in ChannelServer.Instance.ScriptManager.GetHooks(this.NPC.Name, hookName))
 			{
 				var result = await hook(this, args);
+
+				if (result != HookResult.Continue)
+					this.Hooked = true;
+
 				switch (result)
 				{
 					case HookResult.Continue: continue; // Run next hook
