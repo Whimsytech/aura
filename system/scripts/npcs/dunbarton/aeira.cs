@@ -4,6 +4,10 @@
 // Bookstore Owner
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class AeiraScript : NpcScript
 {
 	public override void Load()

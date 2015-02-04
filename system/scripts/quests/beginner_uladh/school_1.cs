@@ -7,6 +7,10 @@
 // and completed automatically (even if you didn't have it before).
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class BeginnerUladhSchool1QuestScript : QuestScript
 {
 	public override void Load()

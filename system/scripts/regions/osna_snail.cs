@@ -5,6 +5,8 @@
 // Region between Emain and Dunbarton.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class OsnaSnailRegionScript : RegionScript
 {
 	public override void LoadWarps()

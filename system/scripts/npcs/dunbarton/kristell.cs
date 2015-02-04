@@ -4,6 +4,10 @@
 // Priestess
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class KristellScript : NpcScript
 {
 	public override void Load()

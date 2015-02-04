@@ -8,6 +8,19 @@
 //  Xcelled, exec
 // --------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Aura.Channel;
+using Aura.Channel.Network;
+using Aura.Channel.Network.Sending;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.Util;
+using Aura.Channel.World.Entities;
+using Aura.Shared.Mabi.Const;
+using Aura.Shared.Util;
+using Aura.Shared.Util.Commands;
+
 public class JailScript : NpcScript
 {
 	public override void Load()

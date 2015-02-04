@@ -4,6 +4,8 @@
 // 
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class GroceryShop : NpcShopScript
 {
 	public override void Setup()

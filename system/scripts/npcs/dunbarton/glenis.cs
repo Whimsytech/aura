@@ -4,6 +4,10 @@
 // Grocery Store Owner
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class GlenisScript : NpcScript
 {
 	public override void Load()

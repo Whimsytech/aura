@@ -6,6 +6,13 @@
 // given the permission.
 //---------------------------------------------------------------------------
 
+using System;
+using System.Threading.Tasks;
+using Aura.Channel;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World.Entities;
+using Aura.Shared.Mabi.Const;
+
 public class NaoScript : NpcScript
 {
 	public override void Load()
@@ -156,8 +163,6 @@ public class NaoScript : NpcScript
 						default:
 							goto L_Cancel;
 					}
-					break;
-					
 				case "@about_rebirths":
 					await RebirthAbout();
 					break;

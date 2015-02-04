@@ -7,6 +7,8 @@
 // North Emain Macha
 // --------------------------------------------------------------------------
 
+using Aura.Channel.Scripting;
+
 [Override("NorthEmainSealStoneScript")]
 public class NorthEmainSealStoneG2Script : NorthEmainSealStoneScript
 {

@@ -6,6 +6,9 @@
 //  Miro, exec
 // --------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class _TelephantBaseScript : NpcScript
 {
 	public override void Load()

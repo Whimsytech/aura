@@ -5,6 +5,8 @@
 // Region between Dunbarton and Bangor.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class GairechRegionScript : RegionScript
 {
 	public override void LoadWarps()

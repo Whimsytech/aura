@@ -4,6 +4,10 @@
 // Healer
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class DilysScript : NpcScript
 {
 	public override void Load()
@@ -21,7 +25,7 @@ public class DilysScript : NpcScript
 		EquipItem(Pocket.Glove, 16098, 0x0061854B, 0x00000000, 0x00000000);
 		EquipItem(Pocket.Shoe, 17285, 0x00E8E8E8, 0x00000000, 0x00000000);
 
-		AddPhrase("It's such a hassle to get all those ingrediants for just one meal.");
+		AddPhrase("It's such a hassle to get all those ingredients for just one meal.");
 		AddPhrase("Men are all the same.");
 		AddPhrase("Perhaps I should order a safe this month.");
 		AddPhrase("Should I go to the market?");

@@ -4,6 +4,10 @@
 // Priest at the Church of Lymilark
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class MevenBaseScript : NpcScript
 {
 	public override void Load()

@@ -5,6 +5,8 @@
 // Region between Emain and Gairech.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class SenMagRegionScript : RegionScript
 {
 	public override void LoadWarps()

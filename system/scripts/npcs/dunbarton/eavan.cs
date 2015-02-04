@@ -4,6 +4,10 @@
 // Public Servant
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class EavanScript : NpcScript
 {
 	public override void Load()

@@ -5,6 +5,9 @@
 // to Nao for the first time.
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class NaosLetterQuestScript : QuestScript
 {
 	public override void Load()

@@ -6,6 +6,8 @@
 //  Miro, exec
 // --------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class OrientalTownProps : GeneralScript
 {
 	public override void Load()

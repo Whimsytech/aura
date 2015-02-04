@@ -4,6 +4,10 @@
 // Bank Manager
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class AusteynScript : NpcScript
 {
 	public override void Load()

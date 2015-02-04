@@ -7,6 +7,12 @@
 // Dugald
 // --------------------------------------------------------------------------
 
+using System;
+using Aura.Channel.Network.Sending;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World.Entities;
+using Aura.Shared.Mabi.Const;
+
 public class DugaldSealStoneScript : SealStoneScript
 {
 	public override void Setup()

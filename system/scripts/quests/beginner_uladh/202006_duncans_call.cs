@@ -5,6 +5,13 @@
 // received automatically at total level 26.
 //---------------------------------------------------------------------------
 
+using System.Linq;
+using System.Threading.Tasks;
+using Aura.Channel.Network.Sending;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World;
+using Aura.Shared.Mabi.Const;
+
 public class DuncansCallQuestScript : QuestScript
 {
 	public override void Load()

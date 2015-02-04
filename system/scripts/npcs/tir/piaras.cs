@@ -4,6 +4,10 @@
 // 
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class PiarasBaseScript : NpcScript
 {
 	public override void Load()

@@ -4,6 +4,9 @@
 // Female bow ego
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class SpiritBowFScript : NpcScript
 {
 	public override void Load()

@@ -4,6 +4,8 @@
 // Warp and spawn definitions for Ceo.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class CeoRegionScript : RegionScript
 {
 	public override void LoadWarps()

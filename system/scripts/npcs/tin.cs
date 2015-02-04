@@ -6,6 +6,10 @@
 // sends LeaveSoulStream when ending the conversation with a special NPC.
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class TinScript : NpcScript
 {
 	public override void Load()

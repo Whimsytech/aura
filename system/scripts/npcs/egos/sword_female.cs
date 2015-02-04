@@ -4,6 +4,9 @@
 // Female sword ego
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class SpiritSwordFScript : NpcScript
 {
 	public override void Load()

@@ -4,6 +4,9 @@
 // Male cylinder ego
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class SpiritCylinderMScript : NpcScript
 {
 	public override void Load()

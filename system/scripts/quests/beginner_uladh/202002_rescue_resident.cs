@@ -8,6 +8,11 @@
 // simply talking to Trefor again.
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World;
+using Aura.Shared.Mabi.Const;
+
 public class RescueResidentQuestScript : QuestScript
 {
 	public override void Load()

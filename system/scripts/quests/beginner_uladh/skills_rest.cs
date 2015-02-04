@@ -4,6 +4,10 @@
 // Started automatically after finishing "Rescue Resident".
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class BeginnerUladhRestQuestScript : QuestScript
 {
 	public override void Load()

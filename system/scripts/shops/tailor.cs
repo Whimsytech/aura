@@ -4,6 +4,8 @@
 // 
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class TailorShop : NpcShopScript
 {
     public override void Setup()

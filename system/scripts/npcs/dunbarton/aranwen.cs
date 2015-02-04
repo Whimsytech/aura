@@ -4,6 +4,10 @@
 // Teacher
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class AranwenScript : NpcScript
 {
 	public override void Load()

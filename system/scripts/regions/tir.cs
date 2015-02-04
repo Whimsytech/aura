@@ -4,6 +4,10 @@
 // Warp and spawn definitions for Tir.
 //---------------------------------------------------------------------------
 
+using Aura.Channel;
+using Aura.Channel.Network.Sending;
+using Aura.Channel.Scripting.Scripts;
+
 public class TirRegionScript : RegionScript
 {
 	public override void InitializeRegion()

@@ -4,6 +4,9 @@
 // Ego Weapon
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class EiryScript : NpcScript
 {
 	public override void Load()

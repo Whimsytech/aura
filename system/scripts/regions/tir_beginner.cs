@@ -4,6 +4,12 @@
 // Region you are warped to after talking to Nao/Tin.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World;
+using Aura.Channel.World.Entities;
+using Aura.Data.Database;
+using Aura.Shared.Mabi.Const;
+
 public class TirBeginnerRegionScript : RegionScript
 {
 	public override void LoadWarps()

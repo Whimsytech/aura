@@ -5,6 +5,8 @@
 // Region between Tir and Dunbarton.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class DugaldRegionScript : RegionScript
 {
 	public override void LoadWarps()

@@ -4,6 +4,9 @@
 // Female blunt ego
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class SpiritBluntFScript : NpcScript
 {
 	public override void Load()

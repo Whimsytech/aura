@@ -4,6 +4,10 @@
 // General store manager
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class MalcolmBaseScript : NpcScript
 {
 	public override void Load()

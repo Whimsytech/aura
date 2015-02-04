@@ -4,6 +4,11 @@
 // Good ol' Duncan
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World.Entities;
+using Aura.Shared.Mabi.Const;
+
 public class DuncanBaseScript : NpcScript
 {
 	public override void Load()

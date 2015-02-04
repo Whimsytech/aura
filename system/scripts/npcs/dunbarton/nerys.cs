@@ -4,6 +4,10 @@
 // Weapon and Armor Store Owner
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class NerysScript : NpcScript
 {
 	public override void Load()

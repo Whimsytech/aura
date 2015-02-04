@@ -4,6 +4,9 @@
 // Female wand ego
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class SpiritWandFScript : NpcScript
 {
 	public override void Load()

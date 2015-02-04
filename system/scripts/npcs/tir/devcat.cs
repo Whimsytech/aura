@@ -4,6 +4,9 @@
 // Mysterious "weird cat" in Chief Duncan's house
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class devCATScript : NpcScript
 {
     public override void Load()

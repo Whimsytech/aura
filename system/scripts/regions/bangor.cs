@@ -4,6 +4,8 @@
 // Warp and spawn definitions for Bangor.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class BangorRegionScript : RegionScript
 {
 	public override void LoadWarps()

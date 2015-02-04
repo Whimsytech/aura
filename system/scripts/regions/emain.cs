@@ -4,6 +4,9 @@
 // Warp and spawn definitions for Emain.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Network.Sending;
+using Aura.Channel.Scripting.Scripts;
+
 public class EmainRegionScript : RegionScript
 {
 	public override void LoadWarps()

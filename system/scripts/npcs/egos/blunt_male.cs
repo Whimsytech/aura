@@ -4,6 +4,9 @@
 // Mmale blunt ego
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+
 public class SpiritBluntMScript : NpcScript
 {
 	public override void Load()

@@ -4,6 +4,12 @@
 // 
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Network.Sending;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Channel.World.Entities;
+using Aura.Shared.Mabi.Const;
+
 public class AlissaBaseScript : NpcScript
 {
 	const long WindmillPropId = 0xA000010009042B;

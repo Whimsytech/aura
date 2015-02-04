@@ -4,6 +4,8 @@
 // Warp and spawn definitions for Sidhe, two fields north of Tir.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+
 public class SidheRegionScript : RegionScript
 {
 	public override void LoadWarps()
