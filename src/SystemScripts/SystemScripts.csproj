@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{94E08A9E-792C-49B2-A292-0643DAC63EFC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SystemScripts</RootNamespace>
+    <AssemblyName>SystemScripts</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\system\scripts\custom\jail.cs">
+      <Link>system\scripts\custom\jail.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\custom\oriental_town.cs">
+      <Link>system\scripts\custom\oriental_town.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\custom\telephant.cs">
+      <Link>system\scripts\custom\telephant.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\g2\others\sealstones.cs">
+      <Link>system\scripts\g2\others\sealstones.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dugald\tracy.cs">
+      <Link>system\scripts\npcs\dugald\tracy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\aeira.cs">
+      <Link>system\scripts\npcs\dunbarton\aeira.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\aranwen.cs">
+      <Link>system\scripts\npcs\dunbarton\aranwen.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\austeyn.cs">
+      <Link>system\scripts\npcs\dunbarton\austeyn.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\eavan.cs">
+      <Link>system\scripts\npcs\dunbarton\eavan.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\glenis.cs">
+      <Link>system\scripts\npcs\dunbarton\glenis.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\kristell.cs">
+      <Link>system\scripts\npcs\dunbarton\kristell.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\manus.cs">
+      <Link>system\scripts\npcs\dunbarton\manus.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\nerys.cs">
+      <Link>system\scripts\npcs\dunbarton\nerys.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\dunbarton\simon.cs">
+      <Link>system\scripts\npcs\dunbarton\simon.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\blunt_female.cs">
+      <Link>system\scripts\npcs\egos\blunt_female.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\blunt_male.cs">
+      <Link>system\scripts\npcs\egos\blunt_male.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\bow_female.cs">
+      <Link>system\scripts\npcs\egos\bow_female.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\bow_male.cs">
+      <Link>system\scripts\npcs\egos\bow_male.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\cylinder_female.cs">
+      <Link>system\scripts\npcs\egos\cylinder_female.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\cylinder_male.cs">
+      <Link>system\scripts\npcs\egos\cylinder_male.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\eiry.cs">
+      <Link>system\scripts\npcs\egos\eiry.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\sword_female.cs">
+      <Link>system\scripts\npcs\egos\sword_female.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\sword_male.cs">
+      <Link>system\scripts\npcs\egos\sword_male.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\wand_female.cs">
+      <Link>system\scripts\npcs\egos\wand_female.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\egos\wand_male.cs">
+      <Link>system\scripts\npcs\egos\wand_male.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\nao.cs">
+      <Link>system\scripts\npcs\nao.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tin.cs">
+      <Link>system\scripts\npcs\tin.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\alissa.cs">
+      <Link>system\scripts\npcs\tir\alissa.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\bebhinn.cs">
+      <Link>system\scripts\npcs\tir\bebhinn.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\caitin.cs">
+      <Link>system\scripts\npcs\tir\caitin.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\deian.cs">
+      <Link>system\scripts\npcs\tir\deian.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\devcat.cs">
+      <Link>system\scripts\npcs\tir\devcat.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\dilys.cs">
+      <Link>system\scripts\npcs\tir\dilys.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\duncan.cs">
+      <Link>system\scripts\npcs\tir\duncan.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\endelyon.cs">
+      <Link>system\scripts\npcs\tir\endelyon.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\ferghus.cs">
+      <Link>system\scripts\npcs\tir\ferghus.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\goro.cs">
+      <Link>system\scripts\npcs\tir\goro.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\lassar.cs">
+      <Link>system\scripts\npcs\tir\lassar.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\malcolm.cs">
+      <Link>system\scripts\npcs\tir\malcolm.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\meven.cs">
+      <Link>system\scripts\npcs\tir\meven.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\nora.cs">
+      <Link>system\scripts\npcs\tir\nora.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\piaras.cs">
+      <Link>system\scripts\npcs\tir\piaras.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\ranald.cs">
+      <Link>system\scripts\npcs\tir\ranald.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\npcs\tir\trefor.cs">
+      <Link>system\scripts\npcs\tir\trefor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\others\sealstones.cs">
+      <Link>system\scripts\others\sealstones.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\quests\beginner_uladh\202001_naos_letter.cs">
+      <Link>system\scripts\quests\beginner_uladh\202001_naos_letter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\quests\beginner_uladh\202002_rescue_resident.cs">
+      <Link>system\scripts\quests\beginner_uladh\202002_rescue_resident.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\quests\beginner_uladh\202006_duncans_call.cs">
+      <Link>system\scripts\quests\beginner_uladh\202006_duncans_call.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\quests\beginner_uladh\school_1.cs">
+      <Link>system\scripts\quests\beginner_uladh\school_1.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\quests\beginner_uladh\skills_rest.cs">
+      <Link>system\scripts\quests\beginner_uladh\skills_rest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\bangor.cs">
+      <Link>system\scripts\regions\bangor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\ceo.cs">
+      <Link>system\scripts\regions\ceo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\dugald.cs">
+      <Link>system\scripts\regions\dugald.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\dunbarton.cs">
+      <Link>system\scripts\regions\dunbarton.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\emain.cs">
+      <Link>system\scripts\regions\emain.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\gairech.cs">
+      <Link>system\scripts\regions\gairech.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\osna_snail.cs">
+      <Link>system\scripts\regions\osna_snail.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\sen_mag.cs">
+      <Link>system\scripts\regions\sen_mag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\sidhe.cs">
+      <Link>system\scripts\regions\sidhe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\tir.cs">
+      <Link>system\scripts\regions\tir.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\regions\tir_beginner.cs">
+      <Link>system\scripts\regions\tir_beginner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\shops\grocery.cs">
+      <Link>system\scripts\shops\grocery.cs</Link>
+    </Compile>
+    <Compile Include="..\..\system\scripts\shops\tailor.cs">
+      <Link>system\scripts\shops\tailor.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChannelServer\ChannelServer.csproj">
+      <Project>{1a902e04-6143-4d1d-9074-75eb133cc9e3}</Project>
+      <Name>ChannelServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{2dea473e-6fd9-4875-926e-8a1cf3e89703}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{49b4c28d-3e7d-4f57-8549-b0e13354de5d}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="system\scripts\ai\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
