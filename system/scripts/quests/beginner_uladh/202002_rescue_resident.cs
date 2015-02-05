@@ -38,9 +38,9 @@ public class RescueResidentQuestScript : QuestScript
 	
 	public async Task<HookResult> TalkTrefor(NpcScript npc, params object[] args)
 	{
-		if(npc.QuestActive(this.Id, "talk_trefor"))
+		if(npc.QuestActive(Id, "talk_trefor"))
 		{
-			npc.FinishQuest(this.Id, "talk_trefor");
+			npc.FinishQuest(Id, "talk_trefor");
 			
 			npc.Player.Skills.Give(SkillId.Smash, SkillRank.Novice);
 			
@@ -60,9 +60,9 @@ public class RescueResidentQuestScript : QuestScript
 			
 			return HookResult.End;
 		}
-		else if(npc.QuestActive(this.Id, "talk_trefor2"))
+		else if(npc.QuestActive(Id, "talk_trefor2"))
 		{
-			npc.FinishQuest(this.Id, "talk_trefor2");
+			npc.FinishQuest(Id, "talk_trefor2");
 			
 			npc.Msg("Good, I see that you're getting the hang of it.<br/>Well, I was able to do that when I was 8, but whatever...<br/>It is now time for you to go and search for the missing Villager.");
 			npc.Msg("Follow the road up and turn right and you'll find the Alby Dungeon.<br/>You can enter the dungeon by dropping this item on the altar.<br/>If you either lose it or fail to rescue her, come back to me so I can give you another one. Please be careful.", npc.Image("dungeonpass", 128, 128));
@@ -71,9 +71,9 @@ public class RescueResidentQuestScript : QuestScript
 			
 			return HookResult.Break;
 		}
-		else if(npc.QuestActive(this.Id, "clear_alby"))
+		else if(npc.QuestActive(Id, "clear_alby"))
 		{
-			npc.FinishQuest(this.Id, "clear_alby");
+			npc.FinishQuest(Id, "clear_alby");
 			
 			npc.Msg("You did it! Good job.<br/>Good thing I asked for your help.<br/>For your great work, I will now teach you how to properly use the Smash skill.<br/>If you open your Skill window and press the 'LEARN' button, you will be able to use a more powerful Smash skill.<br/>I can always use some help here, so drop by often, okay?");
 			

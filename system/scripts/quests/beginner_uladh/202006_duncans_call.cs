@@ -33,9 +33,9 @@ public class DuncansCallQuestScript : QuestScript
 	
 	public async Task<HookResult> TalkDuncan(NpcScript npc, params object[] args)
 	{
-		if(npc.QuestActive(this.Id, "talk_duncan"))
+		if(npc.QuestActive(Id, "talk_duncan"))
 		{
-			npc.FinishQuest(this.Id, "talk_duncan");
+			npc.FinishQuest(Id, "talk_duncan");
 			
 			Send.Effect(npc.NPC, Effect.ScreenFlash, 3000, 0);
 			

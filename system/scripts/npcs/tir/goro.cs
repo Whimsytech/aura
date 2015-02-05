@@ -58,7 +58,7 @@ public class GoroBaseScript : NpcScript
 	{
 		while (true)
 		{
-			this.ShowKeywords();							
+			ShowKeywords();							
 			
 			Msg("You wish to speak to me?<br/>Please ask, and I will do my best to answer your questions.", Button("End Conversation" , "@end"), Button("Battle Arena" , "@reply1"), Button("Arena Coin" , "@reply2"), Button("Talking Goblin", "@reply3"));		
 			
@@ -88,7 +88,7 @@ public class GoroBaseScript : NpcScript
 				default:
 					await Hook("before_keywords", keyword);
 					
-					await this.Keywords(keyword);
+					await Keywords(keyword);
 					break;
 			}
 		}		

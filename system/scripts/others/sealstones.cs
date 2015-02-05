@@ -25,7 +25,7 @@ public class DugaldSealStoneScript : SealStoneScript
 	public override bool Check(Creature creature, Prop prop)
 	{
 		// Number Total Skill Ranks over 20 
-		int ranks = creature.Skills.CountRanks();
+		var ranks = creature.Skills.CountRanks();
 		return (ranks >= 20);
 	}
 

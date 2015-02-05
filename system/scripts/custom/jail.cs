@@ -163,7 +163,7 @@ public class JailScript : NpcScript
 			return CommandResult.Okay;
 		}
 
-		JailScript.Jail(creature, duration);
+		Jail(creature, duration);
 
 		Send.ServerMessage(sender, Localization.Get("Jailed '{0}' for {1}."), name, FormatTS(duration));
 		Send.ServerMessage(creature, Localization.Get("You've been jailed for {0} by {1}."), FormatTS(duration), sender.Name);

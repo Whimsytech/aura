@@ -31,7 +31,7 @@ public class BeginnerUladhRestQuestScript : QuestScript
 	
 	public async Task<HookResult> TalkNora(NpcScript npc, params object[] args)
 	{
-		if(npc.QuestActive(this.Id) && !npc.Player.Skills.Has(SkillId.Rest))
+		if(npc.QuestActive(Id) && !npc.Player.Skills.Has(SkillId.Rest))
 		{
 			npc.Msg("If you came here because of the mail you received about the Resting skill,<br/>we need to talk about it first.<br/>You know you should ask me with the 'Skills' keyword, right?");
 			return HookResult.Break;
