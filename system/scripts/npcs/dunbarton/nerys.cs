@@ -80,7 +80,7 @@ public class NerysScript : NpcScript
 				Msg("Is that all for today?<br/>Well, come back anytime you need me."); // <br/><upgrade hide='true'/>
 				break;
 		}
-		
+
 		End("Thank you, <npcname/>. I'll see you later!");
 	}
 

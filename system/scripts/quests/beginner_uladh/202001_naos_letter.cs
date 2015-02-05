@@ -15,20 +15,20 @@ public class NaosLetterQuestScript : QuestScript
 		SetId(202001);
 		SetName("Nao's Letter of Introduction");
 		SetDescription("Dear [Chief Duncan],\r\nI am directing someone to you. This person is from another world. Please help them adjust to life in Erinn. Thank you, and I hope I will be able to visit you soon. - Nao Pryderi -");
-		
+
 		AddObjective("talk_duncan", "Go to Tir Chonaill and deliver the Letter to Chief Duncan.", 1, 15409, 38310, Talk("duncan"));
 
 		AddReward(Exp(100));
-		
+
 		AddHook("_duncan", "after_intro", TalkDuncan);
 	}
-	
+
 	public async Task<HookResult> TalkDuncan(NpcScript npc, params object[] args)
 	{
-		if(npc.QuestActive(Id, "talk_duncan"))
+		if (npc.QuestActive(Id, "talk_duncan"))
 		{
 			npc.FinishQuest(Id, "talk_duncan");
-			
+
 			npc.Msg(Hide.Name, "(You hand Nao's Letter of Introduction to Duncan.)");
 			npc.Msg("Ah, a letter from Nao.<br/>Hard to believe that little<br/>tomboy's all grown up...");
 			npc.Msg(Hide.Name, "(Duncan folds the letter in half and puts it in his pocket.)");
@@ -52,7 +52,7 @@ public class NaosLetterQuestScript : QuestScript
 
 			return HookResult.Break;
 		}
-		
+
 		return HookResult.Continue;
 	}
 }

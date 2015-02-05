@@ -41,7 +41,7 @@ public class AeiraScript : NpcScript
 		AddPhrase("Whew... I should just finish up the transcription.");
 	}
 
-	protected override async Task Talk() 
+	protected override async Task Talk()
 	{
 		SetBgm("NPC_Aeira.mp3");
 
@@ -68,7 +68,7 @@ public class AeiraScript : NpcScript
 				OpenShop("AeiraShop");
 				return;
 		}
-		
+
 		End("Thank you, <npcname/>. I'll see you later!");
 	}
 
@@ -228,9 +228,9 @@ public class AeiraScript : NpcScript
 	}
 }
 
-public class AeiraShop : NpcShopScript 
+public class AeiraShop : NpcShopScript
 {
-	public override void Setup() 
+	public override void Setup()
 	{
 		Add("Skill Book", 1006); // Introduction to Music Composition
 		Add("Skill Book", 1012); // Campfire Manual

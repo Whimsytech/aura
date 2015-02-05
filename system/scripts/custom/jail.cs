@@ -36,14 +36,14 @@ public class JailScript : NpcScript
 		EquipItem(Pocket.Shoe, 17364, 0x000000, 0x000000, 0x000000);
 		EquipItem(Pocket.Armor, 15774, 0x000000, 0x000000, 0xFFFFFF);
 		EquipItem(Pocket.RightHand2, 40810, 0x000000, 0xC0C0C0, 0xFFD700);
-		
+
 		SetLocation(126, 4408, 1573, 58);
 
 		AddPhrase("Back again, eh?");
 		AddPhrase("Hey! Stop that!");
 		AddPhrase("What, you want to leave?");
 		AddPhrase("You have the right to remain silent...");
-		
+
 		AddCommand(50, -1, "jail", "<name> <duration>", JailCommand);
 	}
 
@@ -115,13 +115,13 @@ public class JailScript : NpcScript
 
 		Jail(e.Client.Controlling, TimeSpan.FromMinutes(30));
 	}
-	
+
 	public static void Jail(Creature creature, TimeSpan time)
 	{
 		creature.Warp(126, 4400, 4200);
 		creature.Vars.Perm["jail_free_time"] = DateTime.Now + time;
 	}
-	
+
 	private static string FormatTS(TimeSpan ts)
 	{
 		var r = new List<string>();
@@ -146,7 +146,7 @@ public class JailScript : NpcScript
 		var name = args[1];
 
 		TimeSpan duration;
-		if(args[2] == "life")
+		if (args[2] == "life")
 		{
 			duration = TimeSpan.FromDays(7 * 20); // 7 days * 20 = 20 Erinn years
 		}

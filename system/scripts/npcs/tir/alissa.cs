@@ -13,12 +13,12 @@ using Aura.Shared.Mabi.Const;
 public class AlissaBaseScript : NpcScript
 {
 	const long WindmillPropId = 0xA000010009042B;
-	
+
 	static bool WindmillActive { get; set; }
-	
+
 	static Prop _windmillProp = null;
 	Prop WindmillProp { get { return _windmillProp ?? (_windmillProp = NPC.Region.GetProp(WindmillPropId)); } }
-	
+
 	public override void Load()
 	{
 		SetName("_alissa");
@@ -72,7 +72,7 @@ public class AlissaBaseScript : NpcScript
 					Msg("The Mill is already working.");
 					break;
 				}
-				
+
 				Msg("How long do you want to use the Mill?<br/>It's 100 Gold for one minute and 450 Gold for 5 minutes.<br/>Once it starts working, anyone can use the Mill.", Button("1 Minute", "@1minute"), Button("5 Minutes", "@5minute"), Button("Forget It", "@quit"));
 
 				switch (await Select())
@@ -91,7 +91,7 @@ public class AlissaBaseScript : NpcScript
 				}
 				break;
 		}
-		
+
 		End();
 	}
 
@@ -190,7 +190,7 @@ public class AlissaBaseScript : NpcScript
 				break;
 		}
 	}
-	
+
 	protected void BuyWindmill(int gold, int minutes)
 	{
 		if (!Player.Inventory.HasGold(gold))
@@ -198,38 +198,38 @@ public class AlissaBaseScript : NpcScript
 			Msg("You don't have enough money. I'm sorry, you can't use it for free.");
 			return;
 		}
-		
+
 		Player.Inventory.RemoveGold(gold);
 		ActivateWindmill(minutes);
-		
+
 		RndMsg(
 			"Okay!<br/>Anyone can use the Mill now for the next " + minutes + " minutes.<br/>I'm counting, haha.",
 			"Yay! I got some pocket money!"
 		);
 	}
-	
+
 	protected void ActivateWindmill(int minutes)
 	{
 		if (WindmillActive)
 			return;
-		
+
 		WindmillActive = true;
-			
+
 		WindmillProp.State = "on";
 		WindmillProp.Xml.SetAttributeValue("EventText", Player.Name + " has activated the Windmill. Anybody can use it now to grind crops into flour.");
-		
+
 		SetTimeout(minutes * 60 * 1000, DeactivateWindmill);
-		
+
 		Send.PropUpdate(WindmillProp);
 	}
 
 	protected void DeactivateWindmill()
 	{
 		WindmillActive = false;
-		
+
 		WindmillProp.State = "off";
 		WindmillProp.Xml.SetAttributeValue("EventText", "The Mill is currently not in operation.\nOnce you operate it, you can grind the crops into flour.");
-		
+
 		Send.PropUpdate(WindmillProp);
 	}
 }

@@ -26,7 +26,7 @@ public class KristellScript : NpcScript
 
 		AddGreeting(0, "I am Priestess <npcname/>. Nice to meet you.");
 		AddGreeting(1, "Welcome to the Dunbarton church, <username/>.");
-        
+
 		AddPhrase("...");
 		AddPhrase("I wish there was someone who could ring the bell on time...");
 		AddPhrase("In the name of Lymilark...");
@@ -65,7 +65,7 @@ public class KristellScript : NpcScript
 				OpenShop("KristellShop");
 				return;
 		}
-		
+
 		End("Thank you, <npcname/>. I'll see you later!");
 	}
 
