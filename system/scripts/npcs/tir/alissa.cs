@@ -198,13 +198,9 @@ public class AlissaBaseScript : NpcScript
 			Msg("You don't have enough money. I'm sorry, you can't use it for free.");
 			return;
 		}
-<<<<<<< HEAD
-
-		Player.Inventory.RemoveGold(gold);
-=======
 		
 		Gold -= gold;
->>>>>>> master
+
 		ActivateWindmill(minutes);
 
 		RndMsg(
