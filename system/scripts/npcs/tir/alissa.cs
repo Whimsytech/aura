@@ -193,13 +193,18 @@ public class AlissaBaseScript : NpcScript
 
 	protected void BuyWindmill(int gold, int minutes)
 	{
-		if (!Player.Inventory.HasGold(gold))
+		if (Gold < gold)
 		{
 			Msg("You don't have enough money. I'm sorry, you can't use it for free.");
 			return;
 		}
+<<<<<<< HEAD
 
 		Player.Inventory.RemoveGold(gold);
+=======
+		
+		Gold -= gold;
+>>>>>>> master
 		ActivateWindmill(minutes);
 
 		RndMsg(

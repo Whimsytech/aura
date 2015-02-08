@@ -47,6 +47,10 @@ namespace Aura.Channel.Skills.Combat
 			attacker.StopMove();
 			var targetPosition = target.StopMove();
 
+			// Counter
+			if (SkillHelper.HandleCounter(target, attacker))
+				return CombatSkillResult.Okay;
+
 			var rightWeapon = attacker.Inventory.RightHand;
 			var leftWeapon = attacker.Inventory.LeftHand;
 			var magazine = attacker.Inventory.Magazine;
@@ -135,6 +139,9 @@ namespace Aura.Channel.Skills.Combat
 				// Second hit doubles stun time for normal hits
 				if (cap.Hit == 2 && !tAction.IsKnockBack)
 					aAction.Stun *= 2;
+
+				// Update current weapon
+				SkillHelper.UpdateWeapon(attacker, target, weapon);
 
 				cap.Handle();
 

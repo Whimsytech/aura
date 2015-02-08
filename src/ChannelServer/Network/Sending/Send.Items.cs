@@ -276,6 +276,66 @@ namespace Aura.Channel.Network.Sending
 		}
 
 		/// <summary>
+		/// Sends ItemDurabilityUpdate to creature's client.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="item"></param>
+		public static void ItemDurabilityUpdate(Creature creature, IList<Item> items)
+		{
+			var packet = new Packet(Op.ItemDurabilityUpdate, creature.EntityId);
+			foreach (var item in items)
+			{
+				packet.PutLong(item.EntityId);
+				packet.PutInt(item.OptionInfo.Durability);
+			}
+
+			creature.Client.Send(packet);
+		}
+
+		/// <summary>
+		/// Sends ItemMaxDurabilityUpdate to creature's client.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="item"></param>
+		public static void ItemMaxDurabilityUpdate(Creature creature, Item item)
+		{
+			var packet = new Packet(Op.ItemMaxDurabilityUpdate, creature.EntityId);
+			packet.PutLong(item.EntityId);
+			packet.PutInt(item.OptionInfo.DurabilityMax);
+
+			creature.Client.Send(packet);
+		}
+
+		/// <summary>
+		/// Sends ItemRepairResult to creature's client.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="item"></param>
+		public static void ItemRepairResult(Creature creature, Item item, int successes)
+		{
+			var packet = new Packet(Op.ItemRepairResult, creature.EntityId);
+			packet.PutLong(item.EntityId);
+			packet.PutInt(successes);
+
+			creature.Client.Send(packet);
+		}
+
+		/// <summary>
+		/// Sends ItemExpUpdate to creature's client.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="item"></param>
+		public static void ItemExpUpdate(Creature creature, Item item)
+		{
+			var packet = new Packet(Op.ItemExpUpdate, creature.EntityId);
+			packet.PutLong(item.EntityId);
+			packet.PutShort(item.OptionInfo.Experience);
+			packet.PutByte(item.OptionInfo.EP);
+
+			creature.Client.Send(packet);
+		}
+
+		/// <summary>
 		/// Sends DyePaletteReqR to creature's client.
 		/// </summary>
 		/// <param name="creature"></param>
