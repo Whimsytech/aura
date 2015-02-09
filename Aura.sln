@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "src\Data\Data.cspro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebServer", "src\WebServer\WebServer.csproj", "{61265059-F60C-4964-B734-B77507BB5BF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemScripts", "src\SystemScripts\SystemScripts.csproj", "{94E08A9E-792C-49B2-A292-0643DAC63EFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemScripts", "SystemScripts.csproj", "{94E08A9E-792C-49B2-A292-0643DAC63EFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
