@@ -11,6 +11,7 @@
     <AssemblyName>SystemScripts</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+		<BaseIntermediateOutputPath>src\SystemScripts\obj</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -151,14 +152,17 @@
     <ProjectReference Include="src\ChannelServer\ChannelServer.csproj">
       <Project>{1a902e04-6143-4d1d-9074-75eb133cc9e3}</Project>
       <Name>ChannelServer</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="src\Data\Data.csproj">
       <Project>{2dea473e-6fd9-4875-926e-8a1cf3e89703}</Project>
       <Name>Data</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="src\Shared\Shared.csproj">
       <Project>{49b4c28d-3e7d-4f57-8549-b0e13354de5d}</Project>
       <Name>Shared</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
