@@ -5,6 +5,10 @@
 /log/
 /cache/
 
+/src/SystemScripts/system
+/src/SystemScripts/system.lnk
+/src/SystemScripts/system/*
+
 /user/conf/*
 !/user/conf/database-example.conf
 
