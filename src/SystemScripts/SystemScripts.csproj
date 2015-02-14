@@ -166,6 +166,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
+    <Exec Command="rmdir /s /q system" IgnoreExitCode="true" />
 		<Exec Command="mklink /j system ..\..\system" IgnoreExitCode="true" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
