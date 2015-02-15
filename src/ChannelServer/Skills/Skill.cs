@@ -12,23 +12,67 @@ using Aura.Data.Database;
 using Aura.Shared.Mabi.Const;
 using Aura.Shared.Mabi.Structs;
 using Aura.Shared.Util;
+using Aura.Channel.Util.Configuration.Files;
+using System.Globalization;
 
 namespace Aura.Channel.Skills
 {
 	public class Skill
 	{
-		public Creature _creature;
+		private Creature _creature;
 		private int _race;
 
+		/// <summary>
+		/// Information about the skill, serialized to packets.
+		/// </summary>
 		public SkillInfo Info;
-		public SkillData SkillData { get; protected set; }
+
+		/// <summary>
+		/// Data about the skill, loaded from the db.
+		/// </summary>
+		public SkillData Data { get; protected set; }
+
+		/// <summary>
+		/// Data about the skill's current rank, loaded from the db.
+		/// </summary>
 		public SkillRankData RankData { get; protected set; }
+
+		/// <summary>
+		/// The skills current state.
+		/// </summary>
+		public SkillState State { get; set; }
+
+		/// <summary>
+		/// Holds time at which the skill is fully loaded.
+		/// </summary>
+		public DateTime CastEnd { get; set; }
+
+		private int _stack = 0;
+		/// <summary>
+		/// Loaded stack count.
+		/// </summary>
+		public int Stacks
+		{
+			get { return _stack; }
+			set
+			{
+				_stack = Math2.Clamp(0, sbyte.MaxValue, value);
+				Send.SkillStackSet(_creature, this.Info.Id, _stack);
+			}
+		}
 
 		/// <summary>
 		/// Returns true if skill has enough experience and is below max rank.
 		/// </summary>
 		public bool IsRankable { get { return (this.Info.Experience >= 100000 && this.Info.Rank < this.Info.MaxRank); } }
 
+		/// <summary>
+		/// New Skill.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="id"></param>
+		/// <param name="rank"></param>
+		/// <param name="race"></param>
 		public Skill(Creature creature, SkillId id, SkillRank rank, int race)
 		{
 			_creature = creature;
@@ -61,19 +105,19 @@ namespace Aura.Channel.Skills
 		/// </summary>
 		public void LoadRankData()
 		{
-			this.SkillData = AuraData.SkillDb.Find((int)this.Info.Id);
-			if (this.SkillData == null)
+			this.Data = AuraData.SkillDb.Find((int)this.Info.Id);
+			if (this.Data == null)
 				throw new Exception("Skill.LoadRankData: Skill data not found for '" + this.Info.Id.ToString() + "'.");
 
-			if ((this.RankData = this.SkillData.GetRankData((byte)this.Info.Rank, _race)) == null)
+			if ((this.RankData = this.Data.GetRankData((byte)this.Info.Rank, _race)) == null)
 			{
-				if ((this.RankData = this.SkillData.GetFirstRankData(_race)) == null)
+				if ((this.RankData = this.Data.GetFirstRankData(_race)) == null)
 					throw new Exception("Skill.LoadRankData: No rank data found for '" + this.Info.Id.ToString() + "@" + this.Info.Rank.ToString() + "'.");
 
 				Log.Warning("Skill.LoadRankData: Missing rank data for '{0},{1}', using '{2}' instead.", this.Info.Id, this.Info.Rank, (SkillRank)this.RankData.Rank);
 			}
 
-			this.Info.MaxRank = (SkillRank)this.SkillData.MaxRank;
+			this.Info.MaxRank = (SkillRank)this.Data.MaxRank;
 
 			this.Info.ConditionCount1 = (short)this.RankData.Conditions[0].Count;
 			this.Info.ConditionCount2 = (short)this.RankData.Conditions[1].Count;
@@ -119,6 +163,15 @@ namespace Aura.Channel.Skills
 			if (!_creature.IsCharacter)
 				return;
 
+			var bonus = "";
+
+			// Apply skill exp multiplier
+			if (ChannelServer.Instance.Conf.World.SkillExpRate != 1)
+			{
+				amount = (int)(amount * ChannelServer.Instance.Conf.World.SkillExpRate);
+				bonus = string.Format(Localization.Get(" (Skill Exp Rate Bonus: x{0})"), ChannelServer.Instance.Conf.World.SkillExpRate.ToString(CultureInfo.InvariantCulture));
+			}
+
 			// Change count and reveal the condition
 			if (amount > 0)
 			{
@@ -141,7 +194,7 @@ namespace Aura.Channel.Skills
 
 			var exp = this.UpdateExperience();
 			if (exp > 0)
-				Send.SkillTrainingUp(_creature, this, exp);
+				Send.SkillTrainingUp(_creature, this, exp, bonus);
 		}
 
 		/// <summary>
@@ -195,5 +248,34 @@ namespace Aura.Channel.Skills
 		{
 			return ((this.Info.Flag & flags) != 0);
 		}
+
+		/// <summary>
+		/// Returns cast time of skill, specific for its creature.
+		/// </summary>
+		/// <returns></returns>
+		public int GetCastTime()
+		{
+			var dynamic = (ChannelServer.Instance.Conf.World.CombatSystem == CombatSystem.Dynamic);
+
+			// Characters/Dynamic
+			if (_creature.IsCharacter && dynamic)
+				return this.RankData.NewLoadTime;
+
+			// Monsters/Pets
+			return this.RankData.LoadTime;
+		}
+	}
+
+	/// <summary>
+	/// Current state of a skill.
+	/// </summary>
+	public enum SkillState
+	{
+		None,
+		Prepared,
+		Ready,
+		Used,
+		Completed,
+		Canceled,
 	}
 }

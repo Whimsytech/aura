@@ -13,6 +13,7 @@ using Aura.Data.Database;
 using Aura.Channel.World;
 using Aura.Channel.Skills.Life;
 using Aura.Shared.Mabi;
+using Aura.Channel.Skills.Magic;
 
 namespace Aura.Channel.Skills.Combat
 {
@@ -25,13 +26,26 @@ namespace Aura.Channel.Skills.Combat
 	[Skill(SkillId.CombatMastery)]
 	public class CombatMastery : ICombatSkill, IInitiableSkillHandler
 	{
+		/// <summary>
+		/// Units an enemy is knocked back.
+		/// </summary>
 		private const int KnockBackDistance = 450;
 
+		/// <summary>
+		/// Subscribes skill to events needed for training.
+		/// </summary>
 		public void Init()
 		{
 			ChannelServer.Instance.Events.CreatureAttackedByPlayer += this.OnCreatureAttackedByPlayer;
 		}
 
+		/// <summary>
+		/// Handles attack.
+		/// </summary>
+		/// <param name="attacker">The creature attacking.</param>
+		/// <param name="skill">The skill being used.</param>
+		/// <param name="targetEntityId">The entity id of the target.</param>
+		/// <returns></returns>
 		public CombatSkillResult Use(Creature attacker, Skill skill, long targetEntityId)
 		{
 			if (attacker.IsStunned)
@@ -48,7 +62,7 @@ namespace Aura.Channel.Skills.Combat
 			var targetPosition = target.StopMove();
 
 			// Counter
-			if (SkillHelper.HandleCounter(target, attacker))
+			if (Counterattack.Handle(target, attacker))
 				return CombatSkillResult.Okay;
 
 			var rightWeapon = attacker.Inventory.RightHand;
@@ -80,16 +94,16 @@ namespace Aura.Channel.Skills.Combat
 				var damage = attacker.GetRndDamage(weapon);
 
 				// Critical Hit
-				SkillHelper.HandleCritical(attacker, attacker.GetCritChanceFor(target), ref damage, tAction);
+				CriticalHit.Handle(attacker, attacker.GetCritChanceFor(target), ref damage, tAction);
 
 				// Subtract target def/prot
 				SkillHelper.HandleDefenseProtection(target, ref damage);
 
 				// Defense
-				SkillHelper.HandleDefense(aAction, tAction, ref damage);
+				Defense.Handle(aAction, tAction, ref damage);
 
 				// Mana Shield
-				SkillHelper.HandleManaShield(target, ref damage, tAction);
+				ManaShield.Handle(target, ref damage, tAction);
 
 				// Deal with it!
 				if (damage > 0)
@@ -101,8 +115,19 @@ namespace Aura.Channel.Skills.Combat
 					if (tAction.Type != CombatActionType.Defended)
 					{
 						target.KnockBack += this.GetKnockBack(weapon) / maxHits;
-						if (target.KnockBack >= 100 && target.Is(RaceStands.KnockBackable))
-							tAction.Set(tAction.Has(TargetOptions.Critical) ? TargetOptions.KnockDown : TargetOptions.KnockBack);
+
+						// React normal for CombatMastery, knock down if 
+						// FH and not dual wield, don't knock at all if dual.
+						if (skill.Info.Id != SkillId.FinalHit)
+						{
+							if (target.KnockBack >= 100 && target.Is(RaceStands.KnockBackable))
+								tAction.Set(tAction.Has(TargetOptions.Critical) ? TargetOptions.KnockDown : TargetOptions.KnockBack);
+						}
+						else if (!dualWield)
+						{
+							target.KnockBack = 120;
+							tAction.Set(TargetOptions.KnockDown);
+						}
 					}
 				}
 				else
@@ -113,13 +138,7 @@ namespace Aura.Channel.Skills.Combat
 				// React to knock back
 				if (tAction.IsKnockBack)
 				{
-					var newPos = attacker.GetPosition().GetRelative(targetPosition, KnockBackDistance);
-
-					Position intersection;
-					if (target.Region.Collisions.Find(targetPosition, newPos, out intersection))
-						newPos = targetPosition.GetRelative(intersection, -50);
-
-					target.SetPosition(newPos.X, newPos.Y);
+					attacker.Shove(target, KnockBackDistance);
 
 					aAction.Set(AttackerOptions.KnockBackHit2);
 
@@ -132,7 +151,7 @@ namespace Aura.Channel.Skills.Combat
 				// Set stun time
 				if (tAction.Type != CombatActionType.Defended)
 				{
-					aAction.Stun = this.GetAttackerStun(weapon, tAction.IsKnockBack);
+					aAction.Stun = this.GetAttackerStun(weapon, tAction.IsKnockBack && (skill.Info.Id != SkillId.FinalHit || !dualWield));
 					tAction.Stun = this.GetTargetStun(weapon, tAction.IsKnockBack);
 				}
 

@@ -35,11 +35,6 @@ namespace Aura.Channel.World.Entities.Creatures
 		public Skill ActiveSkill { get; set; }
 
 		/// <summary>
-		/// True if a Preparable skill is currently active.
-		/// </summary>
-		public bool SkillInProgress { get; set; }
-
-		/// <summary>
 		/// New skill manager for creature.
 		/// </summary>
 		/// <param name="creature"></param>
@@ -347,10 +342,12 @@ namespace Aura.Channel.World.Entities.Creatures
 			}
 
 		L_Cancel:
+			this.ActiveSkill.Stacks = 0;
+
 			Send.SkillCancel(_creature);
 
+			this.ActiveSkill.State = SkillState.Canceled;
 			this.ActiveSkill = null;
-			this.SkillInProgress = false;
 		}
 
 		/// <summary>
@@ -417,6 +414,16 @@ namespace Aura.Channel.World.Entities.Creatures
 		public bool IsActive(SkillId skillId)
 		{
 			return (this.ActiveSkill != null && this.ActiveSkill.Info.Id == skillId);
+		}
+
+		/// <summary>
+		/// Returns true if the specified skill is active and on state "Ready".
+		/// </summary>
+		/// <param name="skillId"></param>
+		/// <returns></returns>
+		public bool IsReady(SkillId skillId)
+		{
+			return (this.IsActive(skillId) && this.ActiveSkill.State == SkillState.Ready);
 		}
 	}
 }

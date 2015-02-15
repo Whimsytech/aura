@@ -21,26 +21,83 @@ namespace Aura.Channel.Skills.Combat
 	[Skill(SkillId.Defense)]
 	public class Defense : StandardPrepareHandler, IInitiableSkillHandler
 	{
+		/// <summary>
+		/// Stuntime in ms for the attacker.
+		/// </summary>
+		private const int DefenseAttackerStun = 2500;
+
+		/// <summary>
+		/// Stuntime in ms for the target.
+		/// </summary>
+		private const int DefenseTargetStun = 1000;
+
+		/// <summary>
+		/// Subscribes the handler to events required for training.
+		/// </summary>
 		public void Init()
 		{
 			ChannelServer.Instance.Events.CreatureAttack += this.OnCreatureAttack;
 		}
 
-		public override void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
+		/// <summary>
+		/// Prepares the skill, called to start casting.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public override bool Prepare(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillFlashEffect(creature);
-			Send.SkillPrepare(creature, skill.Info.Id, castTime);
+			Send.SkillPrepare(creature, skill.Info.Id, skill.GetCastTime());
 
-			creature.Skills.ActiveSkill = skill;
+			return true;
 		}
 
-		public override void Ready(Creature creature, Skill skill, Packet packet)
+		/// <summary>
+		/// Readies the skill, called when casting is done.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public override bool Ready(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillReady(creature, skill.Info.Id);
 
 			// Training
 			if (skill.Info.Rank == SkillRank.RF)
 				skill.Train(1); // Use the Defense skill.
+
+			return true;
+		}
+
+		/// <summary>
+		/// Checks if target has Defense skill activated and makes the necessary
+		/// changes to the actions, stun times, and damage.
+		/// </summary>
+		/// <param name="aAction"></param>
+		/// <param name="tAction"></param>
+		/// <param name="damage"></param>
+		/// <returns></returns>
+		public static bool Handle(AttackerAction aAction, TargetAction tAction, ref float damage)
+		{
+			// Defense
+			if (!tAction.Creature.Skills.IsReady(SkillId.Defense))
+				return false;
+
+			// Update actions
+			tAction.Type = CombatActionType.Defended;
+			tAction.SkillId = SkillId.Defense;
+			tAction.Creature.Stun = tAction.Stun = DefenseTargetStun;
+			aAction.Creature.Stun = aAction.Stun = DefenseAttackerStun;
+
+			// Reduce damage
+			var defenseSkill = tAction.Creature.Skills.Get(SkillId.Defense);
+			if (defenseSkill != null)
+				damage -= defenseSkill.RankData.Var3;
+
+			Send.SkillUseStun(tAction.Creature, SkillId.Defense, 1000, 0);
+
+			return true;
 		}
 
 		/// <summary>
@@ -50,7 +107,7 @@ namespace Aura.Channel.Skills.Combat
 		public void OnCreatureAttack(TargetAction tAction)
 		{
 			// We're only interested in hits on creatures using Defense
-			if (!tAction.Creature.Skills.IsActive(SkillId.Defense))
+			if (!tAction.Creature.Skills.IsReady(SkillId.Defense))
 				return;
 
 			// Did the target successfully defend itself?

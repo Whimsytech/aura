@@ -29,9 +29,19 @@ namespace Aura.Channel.Skills.Music
 	[Skill(SkillId.Composing)]
 	public class Composing : IPreparable, ICompletable, ICancelable
 	{
-		private const int MMLMaxLength = 10000;
+		/// <summary>
+		/// Maximum length of the MML.
+		/// </summary>
+		private const int MmlMaxLength = 10000;
 
-		public void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
+		/// <summary>
+		/// Prepares the skill, called after entering the MML,
+		/// goes straight to Use.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public bool Prepare(Creature creature, Skill skill, Packet packet)
 		{
 			var scrollId = packet.GetLong();
 			var title = packet.GetString();
@@ -48,7 +58,7 @@ namespace Aura.Channel.Skills.Music
 			var mmlParts = mml.Split(',');
 
 			// Check lengths
-			if (mml.Length > MMLMaxLength || song.Length > MMLMaxLength) goto L_Fail; // Total
+			if (mml.Length > MmlMaxLength || song.Length > MmlMaxLength) goto L_Fail; // Total
 			if (mmlParts.Length > 0 && mmlParts[0].Length > skill.RankData.Var1) goto L_Fail; // Melody
 			if (mmlParts.Length > 1 && mmlParts[1].Length > skill.RankData.Var2) goto L_Fail; // Harmony 1
 			if (mmlParts.Length > 2 && mmlParts[2].Length > skill.RankData.Var3) goto L_Fail; // Harmony 2
@@ -72,22 +82,31 @@ namespace Aura.Channel.Skills.Music
 				Send.SkillCompleteEntity(creature, skill.Info.Id, item.EntityId);
 			});
 
-			creature.Skills.ActiveSkill = skill;
-
 			// Finish
 			Send.SkillUseEntity(creature, skill.Info.Id, scrollId);
-			return;
+			skill.State = SkillState.Used;
+			return true;
 
 		L_Fail:
-			Send.SkillPrepareSilentCancel(creature, skill.Info.Id);
+			return false;
 		}
 
+		/// <summary>
+		/// Completes skill, writing the MML to the item.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
 		public void Complete(Creature creature, Skill skill, Packet packet)
 		{
-			creature.Skills.ActiveSkill = null;
 			creature.Skills.Callback(SkillId.Composing);
 		}
 
+		/// <summary>
+		/// Cancels skill (do nothing).
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
 		public void Cancel(Creature creature, Skill skill)
 		{
 		}

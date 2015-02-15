@@ -19,33 +19,77 @@ namespace Aura.Channel.Skills.Combat
 	/// Var 3: Crit bonus
 	/// </remarks>
 	[Skill(SkillId.Counterattack)]
-	public class Counterattack : StandardPrepareHandler, IInitiableSkillHandler
+	public class Counterattack : StandardPrepareHandler
 	{
+		/// <summary>
+		/// Time in milliseconds that attacker and creature are stunned for
+		/// after use.
+		/// </summary>
 		private const short StunTime = 3000;
+
+		/// <summary>
+		/// Units the enemy is knocked back.
+		/// </summary>
 		private const int KnockbackDistance = 450;
 
-		public void Init()
-		{
-			ChannelServer.Instance.Events.CreatureAttack += this.OnCreatureAttack;
-		}
-
-		public override void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
+		/// <summary>
+		/// Handles skill preparation.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public override bool Prepare(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillFlashEffect(creature);
-			Send.SkillPrepare(creature, skill.Info.Id, castTime);
+			Send.SkillPrepare(creature, skill.Info.Id, skill.GetCastTime());
 
-			creature.Skills.ActiveSkill = skill;
+			return true;
 		}
 
-		public override void Ready(Creature creature, Skill skill, Packet packet)
+		/// <summary>
+		/// Handles redying the skill, called when finishing casting it.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public override bool Ready(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillReady(creature, skill.Info.Id);
 
 			// Training
 			if (skill.Info.Rank == SkillRank.RF)
-				skill.Train(1); // Use the Defense skill.
+				skill.Train(1); // Use Counterattack.
+
+			return true;
 		}
 
+		/// <summary>
+		/// Returns true if target has counter active and used it.
+		/// </summary>
+		/// <param name="target"></param>
+		/// <param name="attacker"></param>
+		/// <returns></returns>
+		public static bool Handle(Creature target, Creature attacker)
+		{
+			if (!target.Skills.IsReady(SkillId.Counterattack))
+				return false;
+
+			var handler = ChannelServer.Instance.SkillManager.GetHandler<Counterattack>(SkillId.Counterattack);
+			handler.Use(target, attacker);
+
+			// TODO: Centralize this so we don't have to maintain the active
+			//   skill and the regens in multiple places.
+			target.Skills.ActiveSkill.State = SkillState.Used;
+			target.Regens.Remove("ActiveSkillWait");
+
+			return true;
+		}
+
+		/// <summary>
+		/// Handles usage of the skill.
+		/// </summary>
+		/// <param name="attacker"></param>
+		/// <param name="target"></param>
 		public void Use(Creature attacker, Creature target)
 		{
 			var skill = attacker.Skills.Get(SkillId.Counterattack);
@@ -53,7 +97,7 @@ namespace Aura.Channel.Skills.Combat
 			var aAction = new AttackerAction(CombatActionType.RangeHit, attacker, SkillId.Counterattack, target.EntityId);
 			aAction.Options |= AttackerOptions.Result | AttackerOptions.KnockBackHit2;
 
-			var tAction = new TargetAction(CombatActionType.CounteredHit2, target, attacker, SkillId.CombatMastery);
+			var tAction = new TargetAction(CombatActionType.CounteredHit2, target, attacker, target.Skills.IsReady(SkillId.Smash) ? SkillId.Smash : SkillId.CombatMastery);
 			tAction.Options |= TargetOptions.Result | TargetOptions.Smash;
 
 			var cap = new CombatActionPack(attacker, skill.Info.Id);
@@ -63,7 +107,7 @@ namespace Aura.Channel.Skills.Combat
 				(attacker.GetRndTotalDamage() * (skill.RankData.Var2 / 100f)) +
 				(target.GetRndTotalDamage() * (skill.RankData.Var1 / 100f));
 
-			SkillHelper.HandleCritical(attacker, (target.GetCritChanceFor(attacker) + skill.RankData.Var3), ref damage, tAction);
+			CriticalHit.Handle(attacker, (target.GetCritChanceFor(attacker) + skill.RankData.Var3), ref damage, tAction, true);
 			SkillHelper.HandleDefenseProtection(target, ref damage, true, true);
 
 			target.TakeDamage(tAction.Damage = damage, attacker);
@@ -74,93 +118,53 @@ namespace Aura.Channel.Skills.Combat
 			aAction.Stun = StunTime;
 			tAction.Stun = StunTime;
 
-			var targetPosition = target.GetPosition();
-			Position intersection;
-			var knockbackPos = attacker.GetPosition().GetRelative(targetPosition, KnockbackDistance);
-			if (target.Region.Collisions.Find(targetPosition, knockbackPos, out intersection))
-				knockbackPos = targetPosition.GetRelative(intersection, -50);
-
-			target.SetPosition(knockbackPos.X, knockbackPos.Y);
+			attacker.Shove(target, KnockbackDistance);
 
 			// Update both weapons
 			SkillHelper.UpdateWeapon(attacker, target, attacker.RightHand, attacker.LeftHand);
 
 			Send.SkillUseStun(attacker, skill.Info.Id, StunTime, 1);
 
+			this.Training(aAction, tAction);
+
 			cap.Handle();
 		}
 
 		/// <summary>
-		/// Training, called when someone attacks something.
+		/// Trains the skill for attacker and target, based on what happened.
 		/// </summary>
+		/// <param name="aAction"></param>
 		/// <param name="tAction"></param>
-		public void OnCreatureAttack(TargetAction tAction)
+		public void Training(AttackerAction aAction, TargetAction tAction)
 		{
-			// We're only interested in hits on creatures using Defense
-			if (!tAction.Creature.Skills.IsActive(SkillId.Defense))
-				return;
+			var attackerSkill = aAction.Creature.Skills.Get(SkillId.Counterattack);
+			var targetSkill = tAction.Creature.Skills.Get(SkillId.Counterattack);
 
-			// Did the target successfully defend itself?
-			var defended = (tAction.Type == CombatActionType.Defended);
+			if (attackerSkill.Info.Rank == SkillRank.RF)
+			{
+				attackerSkill.Train(2); // Successfully counter enemy's attack.
 
-			// Get skill
-			var attackerSkill = tAction.Attacker.Skills.Get(SkillId.Defense);
-			var targetSkill = tAction.Creature.Skills.Get(SkillId.Defense);
+				if (tAction.SkillId == SkillId.Smash)
+					attackerSkill.Train(4); // Counter enemy's special attack.
+
+				if (tAction.Has(TargetOptions.Critical))
+					attackerSkill.Train(5); // Counter with critical hit.
+			}
+			else
+			{
+				attackerSkill.Train(1); // Successfully counter enemy's attack.
+
+				if (tAction.SkillId == SkillId.Smash)
+					attackerSkill.Train(2); // Counter enemy's special attack.
+
+				if (tAction.Has(TargetOptions.Critical))
+					attackerSkill.Train(4); // Counter with critical hit.
+			}
 
 			if (targetSkill != null)
-			{
-				switch (targetSkill.Info.Rank)
-				{
-					case SkillRank.RF:
-						if (defended) targetSkill.Train(2); // Get hit by an enemy while in the defense stance.
-						break;
-					case SkillRank.RE:
-					case SkillRank.RD:
-					case SkillRank.RC:
-					case SkillRank.RB:
-					case SkillRank.RA:
-					case SkillRank.R9:
-					case SkillRank.R8:
-					case SkillRank.R7:
-					case SkillRank.R6:
-					case SkillRank.R5:
-					case SkillRank.R4:
-					case SkillRank.R3:
-					case SkillRank.R2:
-					case SkillRank.R1:
-						if (defended) targetSkill.Train(1); // Get hit by an enemy while in the defense stance.
-						break;
-				}
-			}
-
-			if (attackerSkill != null)
-			{
-				switch (attackerSkill.Info.Rank)
-				{
-					case SkillRank.RF:
-						if (defended) attackerSkill.Train(3); // Watch an enemy defend itself.
-						break;
-					case SkillRank.RE:
-						if (defended) attackerSkill.Train(2); // Watch an enemy defend itself.
-						break;
-					case SkillRank.RD:
-					case SkillRank.RC:
-					case SkillRank.RB:
-					case SkillRank.RA:
-					case SkillRank.R9:
-					case SkillRank.R8:
-					case SkillRank.R7:
-					case SkillRank.R6:
-					case SkillRank.R5:
-					case SkillRank.R4:
-					case SkillRank.R3:
-					case SkillRank.R2:
-					case SkillRank.R1:
-						if (tAction.AttackerSkillId == SkillId.Smash || tAction.AttackerSkillId == SkillId.MagnumShot || tAction.AttackerSkillId == SkillId.Firebolt || tAction.AttackerSkillId == SkillId.WaterCannon || tAction.AttackerSkillId == SkillId.AssaultSlash)
-							attackerSkill.Train(3); // Successful in using a special skill to attack a defending enemy.
-						goto case SkillRank.RE;
-				}
-			}
+				targetSkill.Train(3); // Learn from the enemy's counter attack.
+			else
+				tAction.Creature.Skills.Give(SkillId.Counterattack, SkillRank.Novice); // Obtaining the Skill
 		}
 	}
 }

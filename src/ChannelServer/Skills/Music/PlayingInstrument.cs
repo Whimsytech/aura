@@ -25,24 +25,42 @@ namespace Aura.Channel.Skills.Music
 	[Skill(SkillId.PlayingInstrument)]
 	public class PlayingInstrument : IPreparable, ICompletable, ICancelable, IInitiableSkillHandler
 	{
-		private const int RandomScoreMin = 1, RandomScoreMax = 52;
+		/// <summary>
+		/// Minimum random score id.
+		/// </summary>
+		private const int RandomScoreMin = 1;
+
+		/// <summary>
+		/// Maximum random score id.
+		/// </summary>
+		private const int RandomScoreMax = 52;
+
+		/// <summary>
+		/// Amount of Durability used every time playing a scroll.
+		/// </summary>
 		private const int DurabilityUse = 1000;
 
+		/// <summary>
+		/// Subscribes handler to events required for training.
+		/// </summary>
 		public virtual void Init()
 		{
 			ChannelServer.Instance.Events.CreatureAttackedByPlayer += this.OnCreatureAttackedByPlayer;
 		}
 
-		public void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
+		/// <summary>
+		/// Prepares skill, goes straight to Use and starts playing.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public bool Prepare(Creature creature, Skill skill, Packet packet)
 		{
 			var rnd = RandomProvider.Get();
 
 			// Check for instrument
 			if (creature.RightHand == null || creature.RightHand.Data.Type != ItemType.Instrument)
-			{
-				Send.SkillPrepareSilentCancel(creature, skill.Info.Id);
-				return;
-			}
+				return false;
 
 			creature.StopMove();
 
@@ -85,8 +103,8 @@ namespace Aura.Channel.Skills.Music
 			Send.PlayEffect(creature, instrumentType, effectQuality, mml, rndScore);
 			this.OnPlay(creature, skill, quality);
 			Send.SkillUsePlayingInstrument(creature, skill.Info.Id, instrumentType, mml, rndScore);
+			skill.State = SkillState.Used;
 
-			creature.Skills.ActiveSkill = skill;
 			creature.Skills.Callback(skill.Info.Id, () =>
 			{
 				Send.Notice(creature, this.GetRandomQualityMessage(quality));
@@ -94,12 +112,18 @@ namespace Aura.Channel.Skills.Music
 			});
 
 			creature.Regens.Add("PlayingInstrument", Stat.Stamina, skill.RankData.StaminaActive, creature.StaminaMax);
+
+			return true;
 		}
 
+		/// <summary>
+		/// Completes skill, called when done playing the current song.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
 		public void Complete(Creature creature, Skill skill, Packet packet)
 		{
-			creature.Skills.ActiveSkill = null;
-
 			this.Cancel(creature, skill);
 
 			creature.Skills.Callback(skill.Info.Id);
@@ -107,6 +131,11 @@ namespace Aura.Channel.Skills.Music
 			Send.SkillComplete(creature, skill.Info.Id);
 		}
 
+		/// <summary>
+		/// Cancales skill.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
 		public virtual void Cancel(Creature creature, Skill skill)
 		{
 			Send.Effect(creature, Effect.StopMusic);

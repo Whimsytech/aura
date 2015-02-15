@@ -1044,7 +1044,6 @@ namespace Aura.Channel.Scripting.Scripts
 
 				// Reset active skill in any case.
 				this.Creature.Skills.ActiveSkill = null;
-				this.Creature.Skills.SkillInProgress = false;
 			}
 		}
 
@@ -1063,6 +1062,8 @@ namespace Aura.Channel.Scripting.Scripts
 				yield break;
 			}
 
+			skill.State = SkillState.None;
+
 			// Cancel previous skill
 			if (this.Creature.Skills.ActiveSkill != null)
 				this.ExecuteOnce(this.CancelSkill());
@@ -1071,7 +1072,8 @@ namespace Aura.Channel.Scripting.Scripts
 			if (skillId == SkillId.WebSpinning)
 			{
 				var skillHandler = ChannelServer.Instance.SkillManager.GetHandler<WebSpinning>(skillId);
-				skillHandler.Prepare(this.Creature, skill, 0, null);
+				skillHandler.Prepare(this.Creature, skill, null);
+				this.Creature.Skills.ActiveSkill = skill;
 				skillHandler.Complete(this.Creature, skill, null);
 			}
 			// Try to handle implicitly
@@ -1100,9 +1102,11 @@ namespace Aura.Channel.Scripting.Scripts
 				// Prepare skill
 				try
 				{
-					skillHandler.Prepare(this.Creature, skill, skill.RankData.LoadTime, null);
+					if (!skillHandler.Prepare(this.Creature, skill, null))
+						yield break;
 
-					this.Creature.Skills.SkillInProgress = true; // Probably not needed for AIs?
+					this.Creature.Skills.ActiveSkill = skill;
+					skill.State = SkillState.Prepared;
 				}
 				catch (NullReferenceException)
 				{
@@ -1117,8 +1121,10 @@ namespace Aura.Channel.Scripting.Scripts
 				foreach (var action in this.Wait(skill.RankData.LoadTime))
 					yield return action;
 
-				// Call ready, in case it sets something important
+				// Call ready
 				readyHandler.Ready(this.Creature, skill, null);
+				skill.State = SkillState.Ready;
+
 				this.SharpMind(skillId, SharpMindStatus.Loaded);
 			}
 		}
@@ -1151,7 +1157,7 @@ namespace Aura.Channel.Scripting.Scripts
 			var skillId = this.Creature.Skills.ActiveSkill.Info.Id;
 
 			this.Creature.Skills.ActiveSkill = null;
-			this.Creature.Skills.SkillInProgress = false;
+			skill.State = SkillState.Completed;
 
 			this.SharpMind(skillId, SharpMindStatus.Cancelling);
 
@@ -1165,6 +1171,7 @@ namespace Aura.Channel.Scripting.Scripts
 			try
 			{
 				skillHandler.Complete(this.Creature, skill, null);
+				skill.State = SkillState.Completed;
 			}
 			catch (NullReferenceException)
 			{

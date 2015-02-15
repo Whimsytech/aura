@@ -3,6 +3,7 @@
 
 using Aura.Channel.Network.Sending;
 using Aura.Channel.Skills.Base;
+using Aura.Channel.Skills.Magic;
 using Aura.Channel.World;
 using Aura.Channel.World.Entities;
 using Aura.Data.Database;
@@ -20,34 +21,80 @@ namespace Aura.Channel.Skills.Combat
 	[Skill(SkillId.Smash)]
 	public class Smash : CombatSkillHandler, IInitiableSkillHandler
 	{
+		/// <summary>
+		/// Stuntime in ms for attacker and target.
+		/// </summary>
 		private const int StunTime = 3000;
+
+		/// <summary>
+		/// Stuntime in ms after usage...?
+		/// (Really? Then what's that ^?)
+		/// </summary>
 		private const int AfterUseStun = 600;
+
+		/// <summary>
+		/// Amount added to the Knockback meter.
+		/// </summary>
 		private const float Knockback = 120;
+
+		/// <summary>
+		/// Units the enemy is knocked back.
+		/// </summary>
 		private const int KnockbackDistance = 450;
 
+		/// <summary>
+		/// Subscribes handlers to events required for training.
+		/// </summary>
 		public void Init()
 		{
 			ChannelServer.Instance.Events.CreatureAttackedByPlayer += this.OnCreatureAttackedByPlayer;
 		}
 
-		public override void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
+		/// <summary>
+		/// Prepares skill, called to start casting it.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public override bool Prepare(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillFlashEffect(creature);
-			Send.SkillPrepare(creature, skill.Info.Id, castTime);
+			Send.SkillPrepare(creature, skill.Info.Id, skill.GetCastTime());
 
-			creature.Skills.ActiveSkill = skill;
+			return true;
 		}
 
-		public override void Ready(Creature creature, Skill skill, Packet packet)
+		/// <summary>
+		/// Readies skill, called when casting is done.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public override bool Ready(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillReady(creature, skill.Info.Id);
+
+			return true;
 		}
 
+		/// <summary>
+		/// Completes skill usage, called after it was used successfully.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
 		public override void Complete(Creature creature, Skill skill, Packet packet)
 		{
 			Send.SkillComplete(creature, skill.Info.Id);
 		}
 
+		/// <summary>
+		/// Handles skill usage.
+		/// </summary>
+		/// <param name="attacker"></param>
+		/// <param name="skill"></param>
+		/// <param name="targetEntityId"></param>
+		/// <returns></returns>
 		public override CombatSkillResult Use(Creature attacker, Skill skill, long targetEntityId)
 		{
 			// Check target
@@ -65,7 +112,7 @@ namespace Aura.Channel.Skills.Combat
 			target.StopMove();
 
 			// Counter
-			if (SkillHelper.HandleCounter(target, attacker))
+			if (Counterattack.Handle(target, attacker))
 				return CombatSkillResult.Okay;
 
 			// Prepare combat actions
@@ -82,13 +129,13 @@ namespace Aura.Channel.Skills.Combat
 			var critChance = this.GetCritChance(attacker, target, skill);
 
 			// Critical Hit
-			SkillHelper.HandleCritical(attacker, critChance, ref damage, tAction);
+			CriticalHit.Handle(attacker, critChance, ref damage, tAction);
 
 			// Subtract target def/prot
 			SkillHelper.HandleDefenseProtection(target, ref damage);
 
 			// Mana Shield
-			SkillHelper.HandleManaShield(target, ref damage, tAction);
+			ManaShield.Handle(target, ref damage, tAction);
 
 			// Apply damage
 			target.TakeDamage(tAction.Damage = damage, attacker);
@@ -101,14 +148,8 @@ namespace Aura.Channel.Skills.Combat
 			target.Stun = tAction.Stun = StunTime;
 			target.KnockBack = Knockback;
 
-			// Check collisions
-			Position intersection;
-			var knockbackPos = attacker.GetPosition().GetRelative(targetPosition, KnockbackDistance);
-			if (target.Region.Collisions.Find(targetPosition, knockbackPos, out intersection))
-				knockbackPos = targetPosition.GetRelative(intersection, -50);
-
 			// Set knockbacked position
-			target.SetPosition(knockbackPos.X, knockbackPos.Y);
+			attacker.Shove(target, KnockbackDistance);
 
 			// Response
 			Send.SkillUseStun(attacker, skill.Info.Id, AfterUseStun, 1);
@@ -122,6 +163,12 @@ namespace Aura.Channel.Skills.Combat
 			return CombatSkillResult.Okay;
 		}
 
+		/// <summary>
+		/// Returns the raw damage to be done.
+		/// </summary>
+		/// <param name="attacker"></param>
+		/// <param name="skill"></param>
+		/// <returns></returns>
 		protected float GetDamage(Creature attacker, Skill skill)
 		{
 			var result = attacker.GetRndTotalDamage();
@@ -134,6 +181,13 @@ namespace Aura.Channel.Skills.Combat
 			return result;
 		}
 
+		/// <summary>
+		/// Returns the chance for a critical hit to happen.
+		/// </summary>
+		/// <param name="attacker"></param>
+		/// <param name="target"></param>
+		/// <param name="skill"></param>
+		/// <returns></returns>
 		protected float GetCritChance(Creature attacker, Creature target, Skill skill)
 		{
 			var result = attacker.GetCritChanceFor(target);

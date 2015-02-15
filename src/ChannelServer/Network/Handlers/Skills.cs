@@ -11,6 +11,7 @@ using Aura.Channel.Network.Sending;
 using Aura.Shared.Util;
 using Aura.Shared.Mabi.Const;
 using Aura.Channel.Skills.Base;
+using Aura.Channel.Skills;
 
 namespace Aura.Channel.Network.Handlers
 {
@@ -32,7 +33,7 @@ namespace Aura.Channel.Network.Handlers
 			var skill = creature.Skills.GetSafe(skillId);
 			if (!skill.IsRankable) goto L_Fail;
 
-			var nextRank = skill.SkillData.GetRankData((int)skill.Info.Rank + 1, creature.Race);
+			var nextRank = skill.Data.GetRankData((int)skill.Info.Rank + 1, creature.Race);
 			if (nextRank == null)
 			{
 				Log.Warning("Player '{0}' tried to advance skill '{1}' to unknown rank '{2}'.", creature.EntityIdHex, skill.Info.Id, skill.Info.Rank + 1);
@@ -168,15 +169,15 @@ namespace Aura.Channel.Network.Handlers
 			// Don't start another while one is active. If you cast another
 			// skill with one already active the client sends Cancel first.
 			// This should prevent a simultaneous Prepare.
-			// TODO: What do we need this for again...? ActiveSkill is set
-			//   and reset at the same time o.o
-			if (creature.Skills.SkillInProgress)
+			// If it's the same skill as the active one it *probably* is stackable.
+			if (creature.Skills.ActiveSkill != null && creature.Skills.ActiveSkill.Info.Id != skillId)
 			{
 				Send.SkillPrepareSilentCancel(creature, skillId);
 				return;
 			}
 
 			var skill = creature.Skills.GetSafe(skillId);
+			skill.State = SkillState.None;
 
 			var handler = ChannelServer.Instance.SkillManager.GetHandler<IPreparable>(skillId);
 			if (handler == null)
@@ -187,15 +188,50 @@ namespace Aura.Channel.Network.Handlers
 				return;
 			}
 
+			// Check Mana
+			if (creature.Mana < skill.RankData.ManaCost)
+			{
+				Send.SystemMessage(creature, Localization.Get("Insufficient Mana"));
+				Send.SkillPrepareSilentCancel(creature, skillId);
+				return;
+			}
+
+			// Check Stamina
+			if (creature.Stamina < skill.RankData.StaminaCost)
+			{
+				Send.SystemMessage(creature, Localization.Get("Insufficient Stamina"));
+				Send.SkillPrepareSilentCancel(creature, skillId);
+				return;
+			}
+
 			try
 			{
-				var loadtime = ChannelServer.Instance.Conf.World.CombatSystem == Util.Configuration.Files.CombatSystem.Dynamic
-					? skill.RankData.NewLoadTime
-					: skill.RankData.LoadTime;
+				// Run handler
+				var success = handler.Prepare(creature, skill, packet);
+				if (!success)
+				{
+					Send.SkillPrepareSilentCancel(creature, skillId);
+					return;
+				}
 
-				handler.Prepare(creature, skill, loadtime, packet);
+				// Reduce Mana/Stamina
+				// TODO: Use regens, for shiny gradually depleting bars
+				if (skill.RankData.ManaCost != 0 || skill.RankData.StaminaCost != 0)
+				{
+					creature.Mana -= skill.RankData.ManaCost;
+					creature.Stamina -= skill.RankData.StaminaCost;
+					Send.StatUpdate(creature, StatUpdateType.Private, Stat.Mana, Stat.Stamina);
+				}
 
-				creature.Skills.SkillInProgress = true;
+				// Set active skill
+				creature.Skills.ActiveSkill = skill;
+
+				// Only set state if the handler didn't skip states.
+				if (skill.State == SkillState.None)
+				{
+					skill.CastEnd = DateTime.Now.AddMilliseconds(skill.GetCastTime());
+					skill.State = SkillState.Prepared;
+				}
 			}
 			catch (NotImplementedException)
 			{
@@ -230,9 +266,35 @@ namespace Aura.Channel.Network.Handlers
 				return;
 			}
 
+			// Can only ready prepared skills
+			if (skill.State != SkillState.Prepared)
+			{
+				Log.Error("SkillReady: Skill '{0}' wasn't prepared first.", skillId);
+				Send.ServerMessage(creature, Localization.Get("Error: Skill wasn't prepared."));
+				// Cancel?
+				return;
+			}
+
+			// Check if cast is over
+			if (skill.CastEnd > DateTime.Now)
+			{
+				// Only an error for now, unsure if this could happen accidentally.
+				Log.Error("SkillReady: Skill '{0}' wasn't fully casted yet.", skillId);
+				Send.ServerMessage(creature, Localization.Get("Error: Skill wasn't fully casted yet."));
+				// Cancel?
+				return;
+			}
+
 			try
 			{
-				handler.Ready(creature, skill, packet);
+				var success = handler.Ready(creature, skill, packet);
+				if (!success)
+					return;
+
+				creature.Regens.Add("ActiveSkillWait", Stat.Mana, skill.RankData.ManaWait, creature.ManaMax);
+				creature.Regens.Add("ActiveSkillWait", Stat.Stamina, skill.RankData.StaminaWait, creature.StaminaMax);
+
+				skill.State = SkillState.Ready;
 			}
 			catch (NotImplementedException)
 			{
@@ -270,9 +332,21 @@ namespace Aura.Channel.Network.Handlers
 				return;
 			}
 
+			// Can only use ready skills
+			if (skill.State != SkillState.Ready)
+			{
+				Log.Error("SkillUse: Skill '{0}' wasn't readied first.", skillId);
+				Send.ServerMessage(creature, Localization.Get("Error: Skill wasn't ready."));
+				Send.SkillUseSilentCancel(creature);
+				return;
+			}
+
 			try
 			{
 				handler.Use(creature, skill, packet);
+				skill.State = SkillState.Used;
+
+				creature.Regens.Remove("ActiveSkillWait");
 			}
 			catch (NotImplementedException)
 			{
@@ -322,9 +396,12 @@ namespace Aura.Channel.Network.Handlers
 			}
 
 		L_End:
-			// Always set active skill to null after complete.
-			creature.Skills.ActiveSkill = null;
-			creature.Skills.SkillInProgress = false;
+			// Reset active skill if all stacks are used up
+			if (skill.Stacks == 0)
+			{
+				creature.Skills.ActiveSkill = null;
+				skill.State = SkillState.Completed;
+			}
 		}
 
 		/// <summary>
@@ -340,10 +417,12 @@ namespace Aura.Channel.Network.Handlers
 		[PacketHandler(Op.SkillCancel)]
 		public void SkillCancel(ChannelClient client, Packet packet)
 		{
-			var unkByte1 = packet.GetByte();
+			var unkByte1 = packet.GetByte(); // true/false: automatic?
 			var unkByte2 = packet.GetByte();
 
 			var creature = client.GetCreatureSafe(packet.Id);
+
+			creature.Regens.Remove("ActiveSkillWait");
 
 			creature.Skills.CancelActiveSkill();
 		}

@@ -38,6 +38,9 @@ namespace Aura.Channel.Skills.Actions
 	[Skill(SkillId.ContinentWarp)]
 	public class ContinentWarp : IPreparable, IUseable, ICompletable, ICancelable
 	{
+		/// <summary>
+		/// Continents players can warp to.
+		/// </summary>
 		private enum Continent : byte
 		{
 			Uladh = 0,
@@ -45,26 +48,47 @@ namespace Aura.Channel.Skills.Actions
 			Belvast = 2,
 		}
 
-		public void Prepare(Creature creature, Skill skill, int castTime, Packet packet)
+		/// <summary>
+		/// Prepares the skill, called when opening map. Goes straight to Ready.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
+		public bool Prepare(Creature creature, Skill skill, Packet packet)
 		{
 			if (!ChannelServer.Instance.Conf.World.EnableContinentWarp)
 			{
 				Send.ServerMessage(creature, Localization.Get("Continent Warp has been disabled by the Admin."));
-				Send.SkillPrepareSilentCancel(creature, skill.Info.Id);
-				return;
+				return false;
 			}
 
-			creature.Skills.ActiveSkill = skill;
 			Send.SkillReady(creature, skill.Info.Id);
+			skill.State = SkillState.Ready;
+
+			return true;
 		}
 
+		/// <summary>
+		/// Handles skill usage, called when a destination was selected.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
 		public void Use(Creature creature, Skill skill, Packet packet)
 		{
 			var destination = (Continent)packet.GetByte();
 
+			// TODO: Check destination?
+
 			Send.SkillUse(creature, skill.Info.Id, (byte)destination);
 		}
 
+		/// <summary>
+		/// Completes skill, warping to destination.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="packet"></param>
 		public void Complete(Creature creature, Skill skill, Packet packet)
 		{
 			var destination = (Continent)packet.GetByte();
@@ -96,11 +120,14 @@ namespace Aura.Channel.Skills.Actions
 
 			creature.Warp(regionId, x, y);
 
-			creature.Skills.ActiveSkill = null;
-
 			Send.SkillComplete(creature, skill.Info.Id, (byte)destination);
 		}
 
+		/// <summary>
+		/// Cancels skill (do nothing).
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
 		public void Cancel(Creature creature, Skill skill)
 		{
 		}

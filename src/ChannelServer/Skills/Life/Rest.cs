@@ -23,6 +23,13 @@ namespace Aura.Channel.Skills.Life
 	[Skill(SkillId.Rest)]
 	public class Rest : StartStopSkillHandler
 	{
+		/// <summary>
+		/// Starts rest skill.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="dict"></param>
+		/// <returns></returns>
 		public override StartStopResult Start(Creature creature, Skill skill, MabiDictionary dict)
 		{
 			creature.StopMove();
@@ -47,6 +54,13 @@ namespace Aura.Channel.Skills.Life
 			return StartStopResult.Okay;
 		}
 
+		/// <summary>
+		/// Stops rest skill, called when moving or stopping it.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="skill"></param>
+		/// <param name="dict"></param>
+		/// <returns></returns>
 		public override StartStopResult Stop(Creature creature, Skill skill, MabiDictionary dict)
 		{
 			creature.Deactivate(CreatureStates.SitDown);
@@ -122,7 +136,7 @@ namespace Aura.Channel.Skills.Life
 
 			// Effect
 			if (creature.Temp.CurrentChairData.Effect != 0)
-				Send.Effect(creature, Effect.CherryBlossoms, false);
+				Send.Effect(creature, creature.Temp.CurrentChairData.Effect, false);
 
 			// Update chair
 			creature.Temp.SittingProp.Xml.SetAttributeValue("OWNER", 0);
