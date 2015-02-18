@@ -83,6 +83,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="system\scripts\ai\chicken.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
     <Compile Include="system\scripts\custom\jail.cs" />
     <Compile Include="system\scripts\custom\oriental_town.cs" />
     <Compile Include="system\scripts\custom\telephant.cs" />
@@ -167,7 +171,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeCompile">
     <Exec Command="rmdir /s /q system" IgnoreExitCode="true" />
-		<Exec Command="mklink /j system ..\..\system" IgnoreExitCode="true" />
+    <Exec Command="mklink /j system ..\..\system" IgnoreExitCode="true" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

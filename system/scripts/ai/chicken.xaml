@@ -1,0 +1,4 @@
+<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer"
+	Name="Chicken" AggroRadius="400">
+	
+</Ai>
