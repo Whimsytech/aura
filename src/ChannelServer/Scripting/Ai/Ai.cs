@@ -63,6 +63,8 @@ namespace Aura.Channel.Scripting.Ai
 
 			// Add any new actions from derived
 			newActions.AddRange(derived.Actions.Except(derivedNamedActions.Select(a => a.Value)));
+
+			derived.Actions = newActions;
 		}
 	}
 }
