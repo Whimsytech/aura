@@ -22,11 +22,11 @@ namespace Aura.Channel.Scripting.Ai
 
 		public List<Affinity> Affinity { get; set; }
 
-		public List<Element> Actions { get; set; }
+		public List<Element> Elements { get; set; }
 
 		public Ai()
 		{
-			Actions = new List<Element>();
+			Elements = new List<Element>();
 		}
 
 		public static Ai Load(string file)
@@ -47,11 +47,11 @@ namespace Aura.Channel.Scripting.Ai
 
 		private static void MergeAis(Ai basedOn, Ai derived)
 		{
-			var newActions = new List<Element>(basedOn.Actions); // Copy base
+			var newActions = new List<Element>(basedOn.Elements); // Copy base
 
 			var namedActions = newActions.Where(a => !string.IsNullOrEmpty(a.Name))
 				.ToDictionary(a => a.Name.ToUpperInvariant());
-			var derivedNamedActions = derived.Actions.Where(a => !string.IsNullOrEmpty(a.Name))
+			var derivedNamedActions = derived.Elements.Where(a => !string.IsNullOrEmpty(a.Name))
 				.ToDictionary(a => a.Name.ToUpperInvariant())
 				.Where(n => namedActions.ContainsKey(n.Key));
 
@@ -62,9 +62,9 @@ namespace Aura.Channel.Scripting.Ai
 			}
 
 			// Add any new actions from derived
-			newActions.AddRange(derived.Actions.Except(derivedNamedActions.Select(a => a.Value)));
+			newActions.AddRange(derived.Elements.Except(derivedNamedActions.Select(a => a.Value)));
 
-			derived.Actions = newActions;
+			derived.Elements = newActions;
 		}
 	}
 }

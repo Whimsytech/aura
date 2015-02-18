@@ -19,6 +19,19 @@ namespace Aura.Channel.Scripting.Ai
 		public abstract void Execute();
 	}
 
+	[ContentProperty("Elements")]
+	public class Sequence : Element
+	{
+		public List<Element> Elements { get; set; }
+
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	// Actions -----------------------------
+
 	[ContentProperty("Message")]
 	public class Say : Element
 	{
