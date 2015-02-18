@@ -15,11 +15,11 @@ namespace Aura.Channel.Scripting.Ai
 	{
 		public string Name { get; set; }
 
-		public List<AiAction> Actions { get; set; }
+		public List<Element> Actions { get; set; }
 
 		public Ai()
 		{
-			Actions = new List<AiAction>();
+			Actions = new List<Element>();
 		}
 	}
 }

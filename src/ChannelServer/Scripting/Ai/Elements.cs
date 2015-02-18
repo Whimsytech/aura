@@ -12,7 +12,7 @@ using Aura.Shared.Mabi.Const;
 
 namespace Aura.Channel.Scripting.Ai
 {
-	public abstract class AiAction : DependencyObject
+	public abstract class Element : DependencyObject
 	{
 		public string Name { get; set; } // Optional name for e.g. jumping
 
@@ -20,7 +20,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Message")]
-	public class Say : AiAction
+	public class Say : Element
 	{
 		public string Message { get; set; }
 
@@ -31,7 +31,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Min")]
-	public class Wait : AiAction
+	public class Wait : Element
 	{
 		public int Min { get; set; }
 		public int Max { get; set; }
@@ -43,7 +43,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("MinDistance")]
-	public class Wander : AiAction
+	public class Wander : Element
 	{
 		public int MinDistance { get; set; }
 		public int MaxDistance { get; set; }
@@ -54,7 +54,7 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	public class MoveTo : AiAction
+	public class MoveTo : Element
 	{
 		public int X { get; set; }
 		public int Y { get; set; }
@@ -67,7 +67,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Radius")]
-	public class Circle : AiAction
+	public class Circle : Element
 	{
 		public int Radius { get; set; }
 		public int TimeMin { get; set; }
@@ -90,7 +90,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("MaxDistance")]
-	public class Follow : AiAction
+	public class Follow : Element
 	{
 		public int MaxDistance { get; set; }
 		public bool Walk { get; set; }
@@ -103,7 +103,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("MinDistance")]
-	public class KeepAway : AiAction
+	public class KeepAway : Element
 	{
 		public int MinDistance { get; set; }
 		public bool Walk { get; set; }
@@ -116,7 +116,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Count")]
-	public class Attack : AiAction
+	public class Attack : Element
 	{
 		public int Count { get; set; }
 		public int Timeout { get; set; }
@@ -134,7 +134,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Skill")]
-	public class PrepareSkill : AiAction
+	public class PrepareSkill : Element
 	{
 		public SkillId Skill { get; set; }
 
@@ -144,7 +144,7 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	public class CancelSkill : AiAction
+	public class CancelSkill : Element
 	{
 		public override void Execute()
 		{
@@ -152,7 +152,7 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	public class CompleteSkill : AiAction
+	public class CompleteSkill : Element
 	{
 		public override void Execute()
 		{
@@ -161,7 +161,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Skill")]
-	public class StartSkill : AiAction
+	public class StartSkill : Element
 	{
 		public SkillId Skill { get; set; }
 
@@ -172,7 +172,7 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	[ContentProperty("Skill")]
-	public class StopSkill : AiAction
+	public class StopSkill : Element
 	{
 		public SkillId Skill { get; set; }
 
