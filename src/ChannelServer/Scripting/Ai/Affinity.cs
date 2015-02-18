@@ -13,7 +13,7 @@ namespace Aura.Channel.Scripting.Ai
 		public string RaceId { get; set; }
 	}
 
-	public class Love : Affinity
+	public class Loves : Affinity
 	{
 		
 	}
