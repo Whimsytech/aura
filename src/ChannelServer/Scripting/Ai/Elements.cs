@@ -37,6 +37,7 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
+	[ContentProperty("Cases")]
 	public class Random : Element
 	{
 		public CaseCollection Cases { get; set; }
@@ -70,7 +71,7 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Elements")]
+	[ContentProperty("Then")]
 	public class If : Element
 	{
 		private string _cond;
@@ -212,6 +213,14 @@ public class Script
 		public bool Walk { get; set; }
 		public int Timeout { get; set; }
 
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class Aggro : Element
+	{
 		public override void Execute()
 		{
 			throw new NotImplementedException();

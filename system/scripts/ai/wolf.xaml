@@ -1,0 +1,68 @@
+﻿<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Wolf" AggroRadius="650">
+	<Ai.Affinity>
+		<Doubts RaceId="/pc/" />
+		<Doubts RaceId="/pet/" />
+		<Doubts RaceId="/cow/" />
+		<Hates RaceId="/sheep/" />
+		<Hates RaceId="/dog/" />
+	</Ai.Affinity>
+	
+	<Sequence Name="Idle">
+		<Wander />
+		<Wait Min="2000" Max="5000" />
+	</Sequence>
+	
+	<Sequence Name="Alert">
+		<If Condition="c.Target.IsInBattleStance">
+			<Aggro />
+		</If>
+		
+		<Random>
+			<Case Rate="50">
+				<Random>
+					<Case Rate="50">
+						<PrepareSkill Skill="Defense" />
+						<Circle Radius="500" TimeMin="1000" TimeMax="5000" />
+						<CancelSkill />
+					</Case>
+					<Case Rate="50">
+						<PrepareSkill Skill="Counterattack" />
+						<Wait Min="5000" />
+						<CancelSkill />
+					</Case>
+				</Random>
+			</Case>
+			<Case Rate="50">
+				<Circle Radius="400" TimeMin="1000" TimeMax="5000" />
+				<Wait Min="1000" Max="5000" />
+			</Case>
+		</Random>
+	</Sequence>
+	
+	<Sequence Name="Aggro">
+		<Random>
+			<Case Rate="50">
+				<Random>
+					<Case Rate="20">
+						<PrepareSkill Skill="Defense" />
+						<Circle Radius="500" TimeMin="1000" TimeMax="5000" />
+						<CancelSkill />
+					</Case>
+					<Case Rate="40">
+						<PrepareSkill Skill="Smash" />
+						<Attack Count="1" Timeout="5000" />
+						<Wait Min="3000" Max="8000" />
+					</Case>
+					<Case Rate="40">
+						<PrepareSkill Skill="Counterattack" />
+						<Wait Min="5000" />
+						<CancelSkill />
+					</Case>
+				</Random>
+			</Case>
+			<Case Rate="50">
+				<Attack Count="3" Timeout="5000" />
+			</Case>
+		</Random>
+	</Sequence>
+</Ai>
