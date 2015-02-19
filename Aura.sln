@@ -4,10 +4,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginServer", "src\LoginServer\LoginServer.csproj", "{3C2D0134-1F31-45FC-9622-CDD28F17BCCE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DEA473E-6FD9-4875-926E-8A1CF3E89703} = {2DEA473E-6FD9-4875-926E-8A1CF3E89703}
+		{49B4C28D-3E7D-4F57-8549-B0E13354DE5D} = {49B4C28D-3E7D-4F57-8549-B0E13354DE5D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChannelServer", "src\ChannelServer\ChannelServer.csproj", "{1A902E04-6143-4D1D-9074-75EB133CC9E3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DEA473E-6FD9-4875-926E-8A1CF3E89703} = {2DEA473E-6FD9-4875-926E-8A1CF3E89703}
+		{49B4C28D-3E7D-4F57-8549-B0E13354DE5D} = {49B4C28D-3E7D-4F57-8549-B0E13354DE5D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{49B4C28D-3E7D-4F57-8549-B0E13354DE5D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DEA473E-6FD9-4875-926E-8A1CF3E89703} = {2DEA473E-6FD9-4875-926E-8A1CF3E89703}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsgrServer", "src\MsgrServer\MsgrServer.csproj", "{8722CE51-0F10-482C-9CCB-8A38256D1F88}"
 EndProject

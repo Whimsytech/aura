@@ -8,11 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
+using Aura.Channel.World.Entities;
 using Aura.Shared.Mabi.Const;
+using CSScriptLibrary;
 
 namespace Aura.Channel.Scripting.Ai
 {
-	public abstract class Element : DependencyObject
+	public abstract class Element
 	{
 		public string Name { get; set; } // Optional name for e.g. jumping
 
@@ -24,8 +26,101 @@ namespace Aura.Channel.Scripting.Ai
 	{
 		public ElementCollection Elements { get; set; }
 
+		public Sequence()
+		{
+			Elements = new ElementCollection();
+		}
+
 		public override void Execute()
 		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class Random : Element
+	{
+		public CaseCollection Cases { get; set; }
+
+		public Random()
+		{
+			Cases = new CaseCollection();
+		}
+
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	[ContentProperty("Elements")]
+	public class Case
+	{
+		public double Rate { get; set; }
+
+		public ElementCollection Elements { get; set; }
+
+		public Case()
+		{
+			Elements = new ElementCollection();
+		}
+
+		public void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	[ContentProperty("Elements")]
+	public class If : Element
+	{
+		private string _cond;
+
+		public string Condition
+		{
+			get
+			{
+				return _cond;
+			}
+			set
+			{
+				dynamic script = CSScript.Evaluator.LoadCode(string.Format(
+@"using System;
+using Aura.Channel.World.Entities;
+
+public class Script
+{{
+	bool Test(Creature c) {{ return {0}; }}
+}}", value));
+
+				ConditionFunc = script.Test;
+
+				_cond = value;
+			}
+		}
+
+		public Func<Creature, bool> ConditionFunc { get; private set; }
+
+		public ElementCollection Then { get; set; }
+		public ElementCollection Else { get; set; }
+
+		public If()
+		{
+			Then = new ElementCollection();
+			Else = new ElementCollection();
+		}
+
+		public override void Execute()
+		{
+			/*
+			var path = Else;
+
+			if (ConditionFunc(creature))
+				path = Then;
+
+			foreach (var e in path)
+				e.Execute();
+			*/
+
 			throw new NotImplementedException();
 		}
 	}

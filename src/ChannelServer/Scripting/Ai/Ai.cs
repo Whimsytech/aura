@@ -14,7 +14,7 @@ using System.Xaml;
 namespace Aura.Channel.Scripting.Ai
 {
 	[ContentProperty("Elements")]
-	public class Ai : DependencyObject
+	public class Ai
 	{
 		private static readonly XamlXmlReaderSettings _readerSettings = new XamlXmlReaderSettings { LocalAssembly = typeof(Ai).Assembly };
 

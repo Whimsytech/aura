@@ -22,4 +22,9 @@ namespace Aura.Channel.Scripting.Ai
 	{
 		
 	}
+
+	public class CaseCollection : List<Case>
+	{
+		
+	}
 }
