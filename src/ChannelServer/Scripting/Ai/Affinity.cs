@@ -21,7 +21,7 @@ namespace Aura.Channel.Scripting.Ai
 		
 	}
 
-	public class Distrusts : Affinity
+	public class Doubts : Affinity
 	{
 		
 	}
