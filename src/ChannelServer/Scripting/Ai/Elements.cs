@@ -22,7 +22,7 @@ namespace Aura.Channel.Scripting.Ai
 	[ContentProperty("Elements")]
 	public class Sequence : Element
 	{
-		public List<Element> Elements { get; set; }
+		public ElementCollection Elements { get; set; }
 
 		public override void Execute()
 		{

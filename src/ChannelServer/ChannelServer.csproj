@@ -60,7 +60,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility">
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Boo.Lang">
       <HintPath>..\..\lib\Boo.Lang.dll</HintPath>
@@ -157,6 +157,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scripting\Ai\Affinity.cs" />
+    <Compile Include="Scripting\Ai\Collections.cs" />
     <Compile Include="Scripting\Ai\Elements.cs" />
     <Compile Include="Scripting\Ai\Ai.cs" />
     <Compile Include="Scripting\Compilers\BooCompiler.cs" />

@@ -2,17 +2,19 @@
 // For more information, see license file in the main folder
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Markup;
 using System.Xaml;
 
 namespace Aura.Channel.Scripting.Ai
 {
-	[ContentProperty("Actions")]
-	public class Ai
+	[ContentProperty("Elements")]
+	public class Ai : DependencyObject
 	{
 		private static readonly XamlXmlReaderSettings _readerSettings = new XamlXmlReaderSettings { LocalAssembly = typeof(Ai).Assembly };
 
@@ -20,13 +22,14 @@ namespace Aura.Channel.Scripting.Ai
 		public string BasedOn { get; set; }
 		public int AggroRadius { get; set; }
 
-		public List<Affinity> Affinity { get; set; }
+		public AffinityCollection Affinity { get; set; }
 
-		public List<Element> Elements { get; set; }
+		public ElementCollection Elements { get; set; }
 
 		public Ai()
 		{
-			Elements = new List<Element>();
+			Affinity = new AffinityCollection();
+			Elements = new ElementCollection();
 		}
 
 		public static Ai Load(string file)
@@ -47,7 +50,7 @@ namespace Aura.Channel.Scripting.Ai
 
 		private static void MergeAis(Ai basedOn, Ai derived)
 		{
-			var newActions = new List<Element>(basedOn.Elements); // Copy base
+			var newActions = (ElementCollection)(new List<Element>(basedOn.Elements)); // Copy base
 
 			var namedActions = newActions.Where(a => !string.IsNullOrEmpty(a.Name))
 				.ToDictionary(a => a.Name.ToUpperInvariant());

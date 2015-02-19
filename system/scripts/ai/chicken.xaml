@@ -1,7 +1,24 @@
-<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer"
-	Name="Chicken" AggroRadius="400">
+<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Chicken" AggroRadius="400">
 	<Ai.Affinity>
 		<Hates RaceId="/fox/" />
 		<Loves RaceId="/hen/" />
 	</Ai.Affinity>
+	
+	<Sequence Name="Idle">
+		<Wander />
+		<Wait Min="8000" />
+		<StartSkill Skill="Rest" />
+		<Wait Min="2000" Max="30000" />
+		<StopSkill Skill="Rest" />
+	</Sequence>
+	
+	<Sequence Name="Aggro">
+		<Attack Count="3" />
+		<Wait Min="3000" />
+	</Sequence>
+	
+	<Sequence Name="Love">
+		<Follow MaxDistance="300" />
+		<Wait Min="5000" Max="10000" />
+	</Sequence>
 </Ai>

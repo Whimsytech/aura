@@ -6,27 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Markup;
 
 namespace Aura.Channel.Scripting.Ai
 {
-	[ContentProperty("RaceId")]
-	public abstract class Affinity
-	{
-		public string RaceId { get; set; }
-	}
+	// Intellisense doesn't like the use of generics in
+	// project references and xaml, for some odd reason.
+	// So these let us cheat and fool it.
 
-	public class Loves : Affinity
+	public class ElementCollection : List<Element>
 	{
 		
 	}
 
-	public class Distrusts : Affinity
-	{
-		
-	}
-
-	public class Hates : Affinity
+	public class AffinityCollection : List<Affinity>
 	{
 		
 	}
