@@ -43,7 +43,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Min")]
 	public class Wait : Element
 	{
 		public int Min { get; set; }
@@ -55,7 +54,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("MinDistance")]
 	public class Wander : Element
 	{
 		public int MinDistance { get; set; }
@@ -79,7 +77,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Radius")]
 	public class Circle : Element
 	{
 		public int Radius { get; set; }
@@ -102,7 +99,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("MaxDistance")]
 	public class Follow : Element
 	{
 		public int MaxDistance { get; set; }
@@ -115,7 +111,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("MinDistance")]
 	public class KeepAway : Element
 	{
 		public int MinDistance { get; set; }
@@ -128,7 +123,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Count")]
 	public class Attack : Element
 	{
 		public int Count { get; set; }
@@ -146,7 +140,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Skill")]
 	public class PrepareSkill : Element
 	{
 		public SkillId Skill { get; set; }
@@ -173,7 +166,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Skill")]
 	public class StartSkill : Element
 	{
 		public SkillId Skill { get; set; }
@@ -184,7 +176,6 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
-	[ContentProperty("Skill")]
 	public class StopSkill : Element
 	{
 		public SkillId Skill { get; set; }
