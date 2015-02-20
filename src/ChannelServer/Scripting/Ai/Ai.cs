@@ -20,7 +20,7 @@ namespace Aura.Channel.Scripting.Ai
 
 		public string Name { get; set; }
 		public string BasedOn { get; set; }
-		public int AggroRadius { get; set; }
+		public int TargetRadius { get; set; }
 
 		public AffinityCollection Affinity { get; set; }
 

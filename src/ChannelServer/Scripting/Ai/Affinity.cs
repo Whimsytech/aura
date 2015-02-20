@@ -14,6 +14,13 @@ namespace Aura.Channel.Scripting.Ai
 	public abstract class Affinity
 	{
 		public string RaceId { get; set; }
+		public int Duration { get; set; }
+
+		protected Affinity()
+		{
+			RaceId = "*";
+			Duration = 3000;
+		}
 	}
 
 	public class Loves : Affinity
@@ -27,6 +34,21 @@ namespace Aura.Channel.Scripting.Ai
 	}
 
 	public class Hates : Affinity
+	{
+		
+	}
+
+	public class HatesBattleStance : Hates
+	{
+
+	}
+
+	public class HatesRaceAttacked : Hates
+	{
+
+	}
+
+	public class HatesPartyAttacked : Hates
 	{
 		
 	}

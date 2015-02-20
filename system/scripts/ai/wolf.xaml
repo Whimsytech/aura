@@ -1,10 +1,12 @@
-﻿<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Wolf" AggroRadius="650">
+﻿<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Wolf" TargetRadius="650">
 	<Ai.Affinity>
 		<Doubts RaceId="/pc/" />
 		<Doubts RaceId="/pet/" />
 		<Doubts RaceId="/cow/" />
 		<Hates RaceId="/sheep/" />
 		<Hates RaceId="/dog/" />
+		
+		<HatesBattleStance Duration="3000" />
 	</Ai.Affinity>
 	
 	<Sequence Name="Idle">
@@ -13,10 +15,6 @@
 	</Sequence>
 	
 	<Sequence Name="Alert">
-		<If Condition="c.Target.IsInBattleStance">
-			<Aggro />
-		</If>
-		
 		<Random>
 			<Case Rate="50">
 				<Random>

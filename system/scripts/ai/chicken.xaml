@@ -1,4 +1,4 @@
-<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Chicken" AggroRadius="400">
+<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Chicken" TargetRadius="400">
 	<Ai.Affinity>
 		<Hates RaceId="/fox/" />
 		<Loves RaceId="/hen/" />
