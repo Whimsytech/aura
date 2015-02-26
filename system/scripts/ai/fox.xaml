@@ -1,0 +1,52 @@
+<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Chicken" TargetRadius="400">
+	<Ai.Affinity>
+		<Hates RaceId="/chicken/" />
+		<Doubts RaceId="/pc/" />
+		<Doubts RaceId="/pet/" />
+	</Ai.Affinity>
+	
+	<Sequence Name="Idle">
+		<Wander />
+		<Wait Min="2000" Max="5000"/>
+	</Sequence>
+	
+	<Sequence Name="Alert">
+		<Random>
+			<Case Rate="50">
+				<PrepareSkill Skill="Defense" />
+			</Case>
+			<Case Rate="50" />
+		</Random>
+		
+		<Circle Radius="400" TimeMin="1000" TimeMax="5000" />
+		<Wait Min="2000" Max="5000" />
+		<CancelSkill />
+	</Sequence>
+	
+	<Sequence Name="Aggro">
+		<Random>
+			<Case Rate="50">
+				<PrepareSkill Skill="Defense" />
+			</Case>
+			<Case Rate="50">
+				<Attack />
+			</Case>
+		</Random>
+		
+		<Random>
+			<Case Rate="50">
+				<Circle Radius="400" TimeMin="1000" TimeMax="5000" />
+			</Case>
+			<Case Rate="50">
+				<Wait Min="3000" />
+			</Case>
+		</Random>
+		
+		<CancelSkill />
+	</Sequence>
+	
+	<Sequence Name="OnDefenseHit">
+		<Attack />
+		<Wait Min="3000" />
+	</Sequence>
+</Ai>
