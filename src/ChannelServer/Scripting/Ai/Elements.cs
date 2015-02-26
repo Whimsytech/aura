@@ -37,6 +37,11 @@ namespace Aura.Channel.Scripting.Ai
 		}
 	}
 
+	public class Handler : Sequence
+	{
+		public AiEvent Event { get; set; }
+	}
+
 	[ContentProperty("Cases")]
 	public class Random : Element
 	{
@@ -288,5 +293,12 @@ public class Script
 		{
 			throw new NotImplementedException();
 		}
+	}
+
+	public enum AiEvent
+	{
+		Hit,
+		DefenseHit,
+		KnockDown,
 	}
 }

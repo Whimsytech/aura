@@ -45,8 +45,8 @@
 		<CancelSkill />
 	</Sequence>
 	
-	<Sequence Name="OnDefenseHit">
+	<Handler Event="DefenseHit">
 		<Attack />
 		<Wait Min="3000" />
-	</Sequence>
+	</Handler>
 </Ai>
