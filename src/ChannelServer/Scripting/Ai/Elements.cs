@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using Aura.Channel.World.Entities;
+using Aura.Channel.World.Inventory;
 using Aura.Shared.Mabi.Const;
 using CSScriptLibrary;
 
@@ -245,6 +246,97 @@ public class Script
 
 		public override void Execute()
 		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class LevelUp : Element
+	{
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class FullHeal : Element
+	{
+		public bool Health { get; set; }
+		public bool Stamina { get; set; }
+		public bool Mana { get; set; }
+		public bool Wounds { get; set; }
+		public bool Hunger { get; set; }
+
+		public FullHeal()
+		{
+			Health = Stamina = Mana = Wounds = Hunger = true;
+		}
+
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	// Placeholder until we figure out exactly what summoned mobs need
+	// Race, Title, Stats, AI, Count, Color, Spawn Radius, other?
+	public class Summon : Element
+	{
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	[ContentProperty("Parameters")]
+	public class Effect : Element
+	{
+		public int EffectId { get; set; }
+
+		public ObjectCollection Parameters { get; set; }
+
+		public Effect()
+		{
+			Parameters = new ObjectCollection();
+		}
+
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class Motion : Element
+	{
+		public int Category { get; set; }
+		public int Type { get; set; }
+		public bool Loop { get; set; }
+
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class CancelMotion : Element
+	{
+		public override void Execute()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	public class SwitchWeapon : Element
+	{
+		public WeaponSet? To { get; set; }
+
+		public SwitchWeapon()
+		{
+			To = null;
+		}
+
+		public override void Execute()
+		{
+			// If null then toggle else set
 			throw new NotImplementedException();
 		}
 	}

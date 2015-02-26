@@ -27,4 +27,9 @@ namespace Aura.Channel.Scripting.Ai
 	{
 		
 	}
+
+	public class ObjectCollection : List<object>
+	{
+		
+	}
 }
