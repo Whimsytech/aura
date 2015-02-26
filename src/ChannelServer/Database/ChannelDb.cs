@@ -403,16 +403,20 @@ namespace Aura.Channel.Database
 							item.OptionInfo.DurabilityOriginal = reader.GetInt32("durabilityOriginal");
 							item.OptionInfo.AttackMin = reader.GetUInt16("attackMin");
 							item.OptionInfo.AttackMax = reader.GetUInt16("attackMax");
+							item.OptionInfo.InjuryMin = reader.GetUInt16("injuryMin");
+							item.OptionInfo.InjuryMax = reader.GetUInt16("injuryMax");
 							item.OptionInfo.Balance = reader.GetByte("balance");
-							item.OptionInfo.Critical = reader.GetByte("critical");
+							item.OptionInfo.Critical = reader.GetSByte("critical");
 							item.OptionInfo.Defense = reader.GetInt32("defense");
 							item.OptionInfo.Protection = reader.GetInt16("protection");
 							item.OptionInfo.EffectiveRange = reader.GetInt16("range");
 							item.OptionInfo.AttackSpeed = (AttackSpeed)reader.GetByte("attackSpeed");
 							item.Proficiency = reader.GetInt32("experience");
+							item.OptionInfo.Upgraded = reader.GetByte("upgrades");
 							item.MetaData1.Parse(reader.GetStringSafe("meta1"));
 							item.MetaData2.Parse(reader.GetStringSafe("meta2"));
 							item.OptionInfo.LinkedPocketId = (Pocket)reader.GetByte("linkedPocket");
+							item.OptionInfo.Flags = (ItemFlags)reader.GetByte("flags");
 
 							result.Add(item);
 						}
@@ -641,8 +645,9 @@ namespace Aura.Channel.Database
 								var id = reader.GetInt32("questId");
 								var state = (QuestState)reader.GetInt32("state");
 								var itemEntityId = reader.GetInt64("itemEntityId");
+								var metaData = reader.GetStringSafe("metaData");
 
-								var quest = new Quest(id, uniqueId, state);
+								var quest = new Quest(id, uniqueId, state, metaData);
 
 								if (quest.State == QuestState.InProgress)
 								{
@@ -697,6 +702,45 @@ namespace Aura.Channel.Database
 						}
 					}
 				}
+				using (var mc = new MySqlCommand("SELECT * FROM `ptj` WHERE `creatureId` = @creatureId", conn))
+				{
+					mc.Parameters.AddWithValue("@creatureId", character.CreatureId);
+
+					using (var reader = mc.ExecuteReader())
+					{
+						while (reader.Read())
+						{
+							var type = (PtjType)reader.GetInt32("type");
+							var done = reader.GetInt32("done");
+							var success = reader.GetInt32("success");
+							var lastChange = reader.GetDateTimeSafe("lastChange");
+
+							// Reduce done by 1 for each day after the third
+							var daysSinceChange = (int)(DateTime.Now - lastChange).TotalDays;
+							var forgetDays = Math.Max(0, daysSinceChange - 3);
+
+							// Make NPCs "forget", cap at 1 job done
+							if (forgetDays > 0)
+							{
+								done = Math.Max(1, done - forgetDays);
+
+								// Set last change to 3 days ago, to keep forgetting,
+								// starting tomorrow.
+								lastChange = DateTime.Now.AddDays(-3);
+							}
+
+							// Adjust success
+							if (done < success)
+								success = done;
+
+							// Add record
+							var record = character.Quests.GetPtjTrackRecord(type);
+							record.Done = done;
+							record.Success = success;
+							record.LastChange = lastChange;
+						}
+					}
+				}
 			}
 		}
 
@@ -743,12 +787,27 @@ namespace Aura.Channel.Database
 					mc.ExecuteNonQuery();
 				}
 
-				// Add quests and progress
+				// Delete PTJ records
+				using (var mc = new MySqlCommand("DELETE FROM `ptj` WHERE `creatureId` = @creatureId", conn, transaction))
+				{
+					mc.Parameters.AddWithValue("@creatureId", character.CreatureId);
+					mc.ExecuteNonQuery();
+				}
+
+				// Add everything
 				foreach (var quest in character.Quests.GetList())
 				{
 					if (quest.State == QuestState.InProgress && !character.Inventory.Has(quest.QuestItem))
 					{
 						Log.Warning("Db.SaveQuests: Missing '{0}'s quest item for '{1}'.", character.Name, quest.Id);
+						continue;
+					}
+
+					// Don't save PTJs, fail them
+					if (quest.Data.Type == QuestType.Deliver)
+					{
+						if (quest.State != QuestState.Complete)
+							character.Quests.ModifyPtjTrackRecord(quest.Data.PtjType, +1, 0);
 						continue;
 					}
 
@@ -760,6 +819,7 @@ namespace Aura.Channel.Database
 						cmd.Set("questId", quest.Id);
 						cmd.Set("state", (int)quest.State);
 						cmd.Set("itemEntityId", (quest.State == QuestState.InProgress ? quest.QuestItem.EntityId : 0));
+						cmd.Set("metaData", quest.MetaData);
 
 						cmd.Execute();
 
@@ -779,6 +839,22 @@ namespace Aura.Channel.Database
 							cmd.Set("unlocked", objective.Unlocked);
 							cmd.Execute();
 						}
+					}
+				}
+
+				foreach (var record in character.Quests.GetPtjTrackRecords())
+				{
+					if (record.Done == 0)
+						continue;
+
+					using (var cmd = new InsertCommand("INSERT INTO `ptj` {0}", conn, transaction))
+					{
+						cmd.Set("creatureId", character.CreatureId);
+						cmd.Set("type", (int)record.Type);
+						cmd.Set("done", record.Done);
+						cmd.Set("success", record.Success);
+						cmd.Set("lastChange", record.LastChange);
+						cmd.Execute();
 					}
 				}
 
@@ -1002,6 +1078,8 @@ namespace Aura.Channel.Database
 						cmd.Set("durabilityOriginal", item.OptionInfo.DurabilityOriginal);
 						cmd.Set("attackMin", item.OptionInfo.AttackMin);
 						cmd.Set("attackMax", item.OptionInfo.AttackMax);
+						cmd.Set("injuryMin", item.OptionInfo.InjuryMin);
+						cmd.Set("injuryMax", item.OptionInfo.InjuryMax);
 						cmd.Set("balance", item.OptionInfo.Balance);
 						cmd.Set("critical", item.OptionInfo.Critical);
 						cmd.Set("defense", item.OptionInfo.Defense);
@@ -1009,8 +1087,10 @@ namespace Aura.Channel.Database
 						cmd.Set("range", item.OptionInfo.EffectiveRange);
 						cmd.Set("attackSpeed", (byte)item.OptionInfo.AttackSpeed);
 						cmd.Set("experience", item.Proficiency);
+						cmd.Set("upgrades", item.OptionInfo.Upgraded);
 						cmd.Set("meta1", item.MetaData1.ToString());
 						cmd.Set("meta2", item.MetaData2.ToString());
+						cmd.Set("flags", (byte)item.OptionInfo.Flags);
 
 						cmd.Execute();
 

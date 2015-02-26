@@ -175,4 +175,17 @@ namespace Aura.Shared.Mabi.Const
 		CylinderM = 15,
 		CylinderF = 16,
 	}
+
+	[Flags]
+	public enum ItemFlags : byte
+	{
+		Unknown = 0x01,
+		// ? = 0x02,
+		Blessed = 0x04,
+		Incomplete = 0x08,
+		// ? = 0x10, (adds "-only Item" text, server side gender restriction?)
+		// ? = 0x20, (removes "(Original)" text?)
+		// ? = 0x40,
+		// ? = 0x80,
+	}
 }

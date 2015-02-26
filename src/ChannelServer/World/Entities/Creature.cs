@@ -355,7 +355,7 @@ namespace Aura.Channel.World.Entities
 			}
 		}
 
-		public int WAttackMinBase
+		public int InjuryMinBaseMod
 		{
 			get
 			{
@@ -363,10 +363,10 @@ namespace Aura.Channel.World.Entities
 
 				if (this.RightHand != null)
 				{
-					result = this.RightHand.OptionInfo.WAttackMin;
+					result = this.RightHand.OptionInfo.InjuryMin;
 					if (this.LeftHand != null)
 					{
-						result += this.LeftHand.OptionInfo.WAttackMin;
+						result += this.LeftHand.OptionInfo.InjuryMin;
 						result /= 2; // average
 					}
 				}
@@ -375,7 +375,7 @@ namespace Aura.Channel.World.Entities
 			}
 		}
 
-		public int WAttackMaxBase
+		public int InjuryMaxBaseMod
 		{
 			get
 			{
@@ -383,10 +383,10 @@ namespace Aura.Channel.World.Entities
 
 				if (this.RightHand != null)
 				{
-					result = this.RightHand.OptionInfo.WAttackMax;
+					result = this.RightHand.OptionInfo.InjuryMax;
 					if (this.LeftHand != null)
 					{
-						result += this.LeftHand.OptionInfo.WAttackMax;
+						result += this.LeftHand.OptionInfo.InjuryMax;
 						result /= 2; // average
 					}
 				}
@@ -652,7 +652,7 @@ namespace Aura.Channel.World.Entities
 			var rnd = RandomProvider.Get();
 			var pos = entity.GetPosition();
 			var target = pos.GetRandomInRange(range, rnd);
-			var dir = (byte)rnd.Next(255);
+			var dir = (byte)rnd.Next(256);
 
 			this.SetLocation(entity.RegionId, target.X, target.Y);
 			this.Direction = dir;
@@ -1427,6 +1427,19 @@ namespace Aura.Channel.World.Entities
 			target.SetPosition(newPos.X, newPos.Y);
 
 			return newPos;
+		}
+
+		/// <summary>
+		///  Returns true if creature's race data has the tag.
+		/// </summary>
+		/// <param name="tag"></param>
+		/// <returns></returns>
+		public override bool HasTag(string tag)
+		{
+			if (this.RaceData == null)
+				return false;
+
+			return this.RaceData.HasTag(tag);
 		}
 	}
 }

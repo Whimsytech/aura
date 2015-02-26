@@ -25,6 +25,11 @@ namespace Aura.Channel.World.Entities
 		private const int MaxProficiency = 101000;
 
 		/// <summary>
+		/// Maximum item experience (proficiency).
+		/// </summary>
+		private const int UncappedMaxProficiency = 251000;
+
+		/// <summary>
 		/// Unique item id that is increased for every new item.
 		/// </summary>
 		private static long _itemId = MabiId.TmpItems;
@@ -155,11 +160,15 @@ namespace Aura.Channel.World.Entities
 			get { return this.OptionInfo.Experience + this.OptionInfo.EP * 1000; }
 			set
 			{
-				var newValue = Math2.Clamp(0, MaxProficiency, value);
-				if (newValue == MaxProficiency)
+				var max = MaxProficiency;
+				if (ChannelServer.Instance.Conf.World.UncapProficiency)
+					max = UncappedMaxProficiency;
+
+				var newValue = Math2.Clamp(0, max, value);
+				if (newValue == max)
 				{
 					this.OptionInfo.Experience = 1000;
-					this.OptionInfo.EP = 100;
+					this.OptionInfo.EP = (byte)((newValue / 1000) - 1);
 				}
 				else
 				{
@@ -182,6 +191,11 @@ namespace Aura.Channel.World.Entities
 		/// [190100, NA200 (2015-01-15)]
 		/// </summary>
 		public bool IsNew { get; set; }
+
+		/// <summary>
+		/// Returns true if item has "Blessed" flag.
+		/// </summary>
+		public bool IsBlessed { get { return ((this.OptionInfo.Flags & ItemFlags.Blessed) != 0); } }
 
 		/// <summary>
 		/// New item based on item id.
@@ -232,6 +246,7 @@ namespace Aura.Channel.World.Entities
 			this.MetaData1 = new MabiDictionary(baseItem.MetaData1.ToString());
 			this.MetaData2 = new MabiDictionary(baseItem.MetaData2.ToString());
 			this.QuestId = baseItem.QuestId;
+			this.EgoInfo = baseItem.EgoInfo.Copy();
 
 			this.SetNewEntityId();
 		}
@@ -348,6 +363,8 @@ namespace Aura.Channel.World.Entities
 				this.OptionInfo.DurabilityOriginal = this.Data.Durability;
 				this.OptionInfo.AttackMin = this.Data.AttackMin;
 				this.OptionInfo.AttackMax = this.Data.AttackMax;
+				this.OptionInfo.InjuryMin = this.Data.InjuryMin;
+				this.OptionInfo.InjuryMax = this.Data.InjuryMax;
 				this.OptionInfo.Balance = this.Data.Balance;
 				this.OptionInfo.Critical = this.Data.Critical;
 				this.OptionInfo.Defense = this.Data.Defense;
@@ -357,6 +374,7 @@ namespace Aura.Channel.World.Entities
 				this.OptionInfo.WeaponType = this.Data.WeaponType;
 				this.OptionInfo.AttackSpeed = (AttackSpeed)this.Data.AttackSpeed;
 				this.OptionInfo.EffectiveRange = this.Data.Range;
+				this.OptionInfo.UpgradeMax = (byte)this.Data.MaxUpgrades;
 
 				var rand = RandomProvider.Get();
 				this.Info.Color1 = AuraData.ColorMapDb.GetRandom(this.Data.ColorMap1, rand);
@@ -371,7 +389,7 @@ namespace Aura.Channel.World.Entities
 				Log.Warning("Item.LoadDefault: Item '{0}' couldn't be found in database.", this.Info.Id);
 			}
 
-			this.OptionInfo.Flag = 1;
+			this.OptionInfo.Flags = ItemFlags.Unknown;
 		}
 
 		/// <summary>
@@ -599,6 +617,19 @@ namespace Aura.Channel.World.Entities
 			// TODO: modifiers
 
 			return result * points;
+		}
+
+		/// <summary>
+		///  Returns true if item's data has the tag.
+		/// </summary>
+		/// <param name="tag"></param>
+		/// <returns></returns>
+		public override bool HasTag(string tag)
+		{
+			if (this.Data == null)
+				return false;
+
+			return this.Data.HasTag(tag);
 		}
 	}
 }

@@ -192,7 +192,11 @@
     <Compile Include="Skills\Combat\FinalHit.cs" />
     <Compile Include="Skills\Combat\GlasGhaibhleannSkill.cs" />
     <Compile Include="Skills\Combat\Smash.cs" />
+    <Compile Include="Skills\Hidden\Blessing.cs" />
     <Compile Include="Skills\Hidden\Dye.cs" />
+    <Compile Include="Skills\Life\Gathering.cs" />
+    <Compile Include="Skills\Life\Herbalism.cs" />
+    <Compile Include="Skills\Life\ProductionMastery.cs" />
     <Compile Include="Skills\Life\Rest.cs" />
     <Compile Include="Skills\Life\WebSpinning.cs" />
     <Compile Include="Skills\Magic\ManaShield.cs" />
@@ -240,6 +244,7 @@
     <Compile Include="World\Position.cs" />
     <Compile Include="World\Quests\Objectives.cs" />
     <Compile Include="World\Quests\Prerequisites.cs" />
+    <Compile Include="World\Quests\PtjTrackRecord.cs" />
     <Compile Include="World\Quests\Quest.cs" />
     <Compile Include="World\Quests\Rewards.cs" />
     <Compile Include="World\Region.cs" />

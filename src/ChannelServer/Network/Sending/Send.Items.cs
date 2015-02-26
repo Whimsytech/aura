@@ -311,11 +311,27 @@ namespace Aura.Channel.Network.Sending
 		/// </summary>
 		/// <param name="creature"></param>
 		/// <param name="item"></param>
+		/// <param name="successes"></param>
 		public static void ItemRepairResult(Creature creature, Item item, int successes)
 		{
 			var packet = new Packet(Op.ItemRepairResult, creature.EntityId);
 			packet.PutLong(item.EntityId);
 			packet.PutInt(successes);
+
+			creature.Client.Send(packet);
+		}
+
+		/// <summary>
+		/// Sends ItemUpgradeResult to creature's client.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="item"></param>
+		/// <param name="appliedUpgrade"></param>
+		public static void ItemUpgradeResult(Creature creature, Item item, string appliedUpgrade)
+		{
+			var packet = new Packet(Op.ItemUpgradeResult, creature.EntityId);
+			packet.PutLong(item.EntityId);
+			packet.PutString(appliedUpgrade);
 
 			creature.Client.Send(packet);
 		}
@@ -387,6 +403,20 @@ namespace Aura.Channel.Network.Sending
 		{
 			var packet = new Packet(Op.UnequipBagR, creature.EntityId);
 			packet.PutByte(success);
+
+			creature.Client.Send(packet);
+		}
+
+		/// <summary>
+		/// Sends ItemBlessed to creature's client.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="item"></param>
+		public static void ItemBlessed(Creature creature, Item item)
+		{
+			var packet = new Packet(Op.ItemBlessed, creature.EntityId);
+			packet.PutLong(item.EntityId);
+			packet.PutByte(item.IsBlessed);
 
 			creature.Client.Send(packet);
 		}

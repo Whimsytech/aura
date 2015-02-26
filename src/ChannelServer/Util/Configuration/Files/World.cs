@@ -29,9 +29,12 @@ namespace Aura.Channel.Util.Configuration.Files
 
 		public CombatSystem CombatSystem { get; protected set; }
 		public bool PerfectPlay { get; protected set; }
+		public bool InfiniteResources { get; protected set; }
 
 		public bool Bagception { get; protected set; }
 		public bool NoDurabilityLoss { get; protected set; }
+		public bool UnlimitedUpgrades { get; protected set; }
+		public bool UncapProficiency { get; protected set; }
 
 		public TimeSpan RebirthTime { get; protected set; }
 
@@ -63,9 +66,12 @@ namespace Aura.Channel.Util.Configuration.Files
 
 			this.PerfectPlay = this.GetBool("perfect_play", false);
 			this.CombatSystem = (this.GetString("combat_system", "dynamic") == "classic" ? CombatSystem.Classic : CombatSystem.Dynamic);
+			this.InfiniteResources = this.GetBool("infinite_resources", false);
 
 			this.Bagception = this.GetBool("bagception", false);
 			this.NoDurabilityLoss = this.GetBool("no_durability_loss", false);
+			this.UnlimitedUpgrades = this.GetBool("unlimited_upgrades", false);
+			this.UncapProficiency = this.GetBool("uncap_proficiency", false);
 
 			this.RebirthTime = TimeSpan.FromDays(this.GetInt("rebirth_time", 6));
 

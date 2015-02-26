@@ -162,7 +162,7 @@ namespace Aura.Shared
 
 				if ((toLoad & DataLoad.Weather) != 0)
 				{
-					this.LoadDb(AuraData.WeatherDataDb, "db/weatherdata.dat", reload);
+					this.LoadDb(AuraData.WeatherTableDb, "db/weathertables.txt", reload);
 					this.LoadDb(AuraData.WeatherDb, "db/weather.txt", reload);
 				}
 
@@ -174,6 +174,21 @@ namespace Aura.Shared
 				if ((toLoad & DataLoad.Titles) != 0)
 				{
 					this.LoadDb(AuraData.TitleDb, "db/titles.txt", reload);
+				}
+
+				if ((toLoad & DataLoad.ItemUpgrades) != 0)
+				{
+					this.LoadDb(AuraData.ItemUpgradesDb, "db/itemupgrades.txt", reload);
+				}
+
+				if ((toLoad & DataLoad.Props) != 0)
+				{
+					this.LoadDb(AuraData.PropsDb, "db/props.txt", reload);
+				}
+
+				if ((toLoad & DataLoad.Collecting) != 0)
+				{
+					this.LoadDb(AuraData.CollectingDb, "db/collecting.txt", reload);
 				}
 			}
 			catch (DatabaseErrorException ex)
@@ -272,6 +287,9 @@ namespace Aura.Shared
 		Keywords = 0x8000,
 		Titles = 0x10000,
 		StatsAge = 0x20000,
+		ItemUpgrades = 0x40000,
+		Props = 0x80000,
+		Collecting = 0x100000,
 
 		All = 0xFFFFFFFF,
 

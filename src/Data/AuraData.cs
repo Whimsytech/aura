@@ -14,13 +14,16 @@ namespace Aura.Data
 		public static ChairDb ChairDb = new ChairDb();
 		public static CharCardDb CharCardDb = new CharCardDb();
 		public static CharCardSetDb CharCardSetDb = new CharCardSetDb();
+		public static CollectingDb CollectingDb = new CollectingDb();
 		public static ColorMapDb ColorMapDb = new ColorMapDb();
 		public static ExpDb ExpDb = new ExpDb();
 		//public static FlightDb FlightDb = new FlightDb();
 		public static ItemDb ItemDb = new ItemDb();
+		public static ItemUpgradesDb ItemUpgradesDb = new ItemUpgradesDb();
 		public static KeywordDb KeywordDb = new KeywordDb();
 		public static MotionDb MotionDb = new MotionDb();
 		public static PetDb PetDb = new PetDb();
+		public static PropsDb PropsDb = new PropsDb();
 		public static PropDropDb PropDropDb = new PropDropDb();
 		public static RaceDb RaceDb = new RaceDb();
 		public static RegionDb RegionDb = new RegionDb();
@@ -35,7 +38,7 @@ namespace Aura.Data
 		//public static TalentExpDb TalentExpDb = new TalentExpDb();
 		//public static TalentRankDb TalentRankDb = new TalentRankDb();
 		public static TitleDb TitleDb = new TitleDb();
-		public static WeatherDataDb WeatherDataDb = new WeatherDataDb();
+		public static WeatherTableDb WeatherTableDb = new WeatherTableDb();
 		public static WeatherDb WeatherDb = new WeatherDb();
 	}
 }

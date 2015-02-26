@@ -86,6 +86,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CRandom.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="DatabaseDat.cs" />
     <Compile Include="DatabaseJson.cs" />
@@ -93,10 +94,13 @@
     <Compile Include="Database\Chairs.cs" />
     <Compile Include="Database\CharCards.cs" />
     <Compile Include="Database\CharCardSets.cs" />
-    <Compile Include="Database\WeatherData.cs" />
+    <Compile Include="Database\CollectingDb.cs" />
+    <Compile Include="Database\Props.cs" />
+    <Compile Include="Database\WeatherTables.cs" />
     <Compile Include="Database\ColorMaps.cs" />
     <Compile Include="Database\Exp.cs" />
     <Compile Include="Database\Items.cs" />
+    <Compile Include="Database\ItemUpgrades.cs" />
     <Compile Include="Database\Keywords.cs" />
     <Compile Include="Database\StatsAgeUp.cs" />
     <Compile Include="Database\Titles.cs" />
