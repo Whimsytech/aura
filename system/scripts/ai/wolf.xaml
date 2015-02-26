@@ -63,4 +63,9 @@
 			</Case>
 		</Random>
 	</Sequence>
+	
+	<Sequence Name="OnDefenseHit">
+		<Attack />
+		<Wait Min="3000" />
+	</Sequence>
 </Ai>
