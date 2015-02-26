@@ -4,6 +4,9 @@
 // Endelyon's adv barley harvest quest.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class EndelyonBarleyAdvPtjScript : QuestScript
 {
 	public override void Load()

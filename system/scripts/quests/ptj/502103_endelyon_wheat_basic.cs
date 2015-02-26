@@ -4,6 +4,9 @@
 // Endelyon's basic wheat harvest quest.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class EndelyonWheatBasicPtjScript : QuestScript
 {
 	public override void Load()

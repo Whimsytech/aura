@@ -4,6 +4,11 @@
 // Handles Endelyon's PTJs via hooks.
 //---------------------------------------------------------------------------
 
+using System.Threading.Tasks;
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi;
+using Aura.Shared.Mabi.Const;
+
 public class EndelyonPtjScript : GeneralScript
 {
 	const PtjType JobType = PtjType.Church;

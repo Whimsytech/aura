@@ -4,6 +4,9 @@
 // Endelyon's basic egg gathering quest.
 //---------------------------------------------------------------------------
 
+using Aura.Channel.Scripting.Scripts;
+using Aura.Shared.Mabi.Const;
+
 public class EndelyonEggsBasicPtjScript : QuestScript
 {
 	public override void Load()
