@@ -1,0 +1,61 @@
+﻿<Ai xmlns="clr-namespace:Aura.Channel.Scripting.Ai;assembly=ChannelServer" Name="Dog" TargetRadius="600">
+	<Ai.Affinity>
+		<Hates RaceId="/wolf/" />
+	</Ai.Affinity>
+
+	<Sequence Name="Idle">
+		<Wander />
+		<Wait Min="8000" />
+		<StartSkill Skill="Rest" />
+		<Wait Min="2000" Max="30000" />
+		<StopSkill Skill="Rest" />
+	</Sequence>
+
+	<Sequence Name="Alert">
+		<Random>
+			<Case Rate="25">
+				<PrepareSkill Skill="Defense" />
+				<Circle Radius="500" TimeMax="3000" />
+				<Wait Min="2000" Max="4000" />
+				<CancelSkill />
+			</Case>
+			<Case Rate="75">
+				<Circle Radius="500" TimeMax="3000" />
+				<Wait Min="2000" Max="4000" />
+			</Case>
+		</Random>
+	</Sequence>
+
+	<Sequence Name="Aggro">
+		<Random>
+			<Case Rate="75">
+				<Attack Timeout="5000" />
+			</Case>
+			<Case Rate="25">
+				<PrepareSkill Skill="Defense" />
+			</Case>
+		</Random>
+		
+		<Random>
+			<Case Rate="10">
+				<KeepAway MinDistance="400" Walk="True" Timeout="3000" />
+			</Case>
+			<Case Rate="15">
+				<KeepAway MinDistance="700" Walk="False" Timeout="3000" />
+			</Case>
+			<Case Rate="25">
+				<Wait Min="3000" />
+			</Case>
+			<Case Rate="50">
+				<Circle Radius="400" TimeMin="3000" />
+			</Case>
+		</Random>
+		
+		<CancelSkill />
+	</Sequence>
+
+	<Sequence Name="OnDefenseHit">
+		<Attack />
+		<Wait Min="3000" />
+	</Sequence>
+</Ai>
