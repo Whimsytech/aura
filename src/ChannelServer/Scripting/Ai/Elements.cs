@@ -41,6 +41,18 @@ namespace Aura.Channel.Scripting.Ai
 	public class Handler : Sequence
 	{
 		public AiEvent Event { get; set; }
+
+		/// <summary>
+		/// Skill used by the attacker for Hit type events
+		/// </summary>
+		/// <value>The skill.</value>
+		public SkillId? Skill { get; set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether this hit type event was a critical hit.
+		/// </summary>
+		/// <value><c>null</c> if [critical] contains no value, <c>true</c> if [critical]; otherwise, <c>false</c>.</value>
+		public bool? Critical { get; set; }
 	}
 
 	[ContentProperty("Cases")]
@@ -281,6 +293,16 @@ public class Script
 	// Race, Title, Stats, AI, Count, Color, Spawn Radius, other?
 	public class Summon : Element
 	{
+		public int Race { get; set; }
+		public int Count { get; set; }
+		public int Radius { get; set; }
+
+		public Summon()
+		{
+			Count = 1;
+			Radius = 1000;
+		}
+
 		public override void Execute()
 		{
 			throw new NotImplementedException();
@@ -391,6 +413,13 @@ public class Script
 	{
 		Hit,
 		DefenseHit,
+		MagicHit,
+		RangeHit,
 		KnockDown,
+		CriticalHit,
+		Countered,
+		SkillReady,
+		SkillComplete,
+		SummonedMobDied,
 	}
 }
