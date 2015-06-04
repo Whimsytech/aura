@@ -38,8 +38,8 @@
 		]
 	}],
 	locations: [
-		{ name: "East Tir Chonaill", location: "Uladh_main/field_Tir_E_ba/TirChonaill_monster6" },
-		{ name: "South Tir Chonaill", location: "Uladh_main/field_Tir_S_aa/TirChonaill_monster3" },
+		{ name: "Eastern Fields of Tir Chonaill", location: "Uladh_main/field_Tir_E_ba/TirChonaill_monster6" },
+		{ name: "Southern Fields of Tir Chonaill", location: "Uladh_main/field_Tir_S_aa/TirChonaill_monster3" },
 	]
 },
 ]
