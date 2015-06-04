@@ -24,6 +24,7 @@ namespace Aura.Channel.World
 
 		public DynamicRegionManager DynamicRegions { get; private set; }
 		public SpawnManager SpawnManager { get; private set; }
+		public FieldBossManager FieldBossManager { get; private set; }
 
 		/// <summary>
 		/// Returns number of regions.
@@ -36,6 +37,7 @@ namespace Aura.Channel.World
 
 			this.DynamicRegions = new DynamicRegionManager();
 			this.SpawnManager = new SpawnManager();
+			this.FieldBossManager = new FieldBossManager();
 		}
 
 		/// <summary>
@@ -48,6 +50,7 @@ namespace Aura.Channel.World
 
 			this.AddRegionsFromData();
 			this.SetUpHeartbeat();
+			this.FieldBossManager.Init();
 
 			_initialized = true;
 		}
