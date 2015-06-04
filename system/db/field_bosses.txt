@@ -1,0 +1,45 @@
+// Aura
+// Database file
+//---------------------------------------------------------------------------
+
+[
+{
+	name: "TirWolves", timeMin: 7200, timeMax: 18000, lifeTime: 1800,
+	sets: [{
+		name: "Giant White Wolf",
+		bosses: [
+			{ raceId: 20040, x: -500, y: 0 },
+			{ raceId: 20040, x: 500, y: 0 },
+		],
+		minions: [
+			{ raceId: 20003, x: 1000, y: 0 },
+			{ raceId: 20003, x: 500, y: 500 },
+			{ raceId: 20003, x: 500, y: -500 },
+			{ raceId: 20003, x: -1000, y: 0 },
+			{ raceId: 20003, x: -500, y: -500 },
+			{ raceId: 20003, x: -500, y: 500 },
+		]
+	},{
+		name: "Giant Black Wolf",
+		bosses: [
+			{ raceId: 20041, x: -500, y: 0 },
+			{ raceId: 20041, x: 500, y: 0 },
+			{ raceId: 20041, x: 0, y: -200 },
+		],
+		minions: [
+			{ raceId: 20002, x: -700, y: 0 },
+			{ raceId: 20002, x: -500, y: 200 },
+			{ raceId: 20002, x: -500, y: -200 },
+			{ raceId: 20002, x: -200, y: -200 },
+			{ raceId: 20002, x: 200, y: -200 },
+			{ raceId: 20002, x: 700, y: 0 },
+			{ raceId: 20002, x: 500, y: 200 },
+			{ raceId: 20002, x: 500, y: -200 },
+		]
+	}],
+	locations: [
+		{ name: "East Tir Chonaill", location: "Uladh_main/field_Tir_E_ba/TirChonaill_monster6" },
+		{ name: "South Tir Chonaill", location: "Uladh_main/field_Tir_S_aa/TirChonaill_monster3" },
+	]
+},
+]
