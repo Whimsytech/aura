@@ -1355,6 +1355,8 @@ namespace Aura.Channel.World.Entities
 		/// <param name="killer"></param>
 		public virtual void Kill(Creature killer)
 		{
+			var region = this.Region;
+
 			if (this.Conditions.Has(ConditionsA.Deadly))
 				this.Conditions.Deactivate(ConditionsA.Deadly);
 			this.Activate(CreatureStates.Dead);
@@ -1439,7 +1441,8 @@ namespace Aura.Channel.World.Entities
 						gold.Info.Y = dropPos.Y;
 						gold.DisappearTime = DateTime.Now.AddSeconds(60);
 
-						this.Region.AddItem(gold);
+						if (region != Region.Limbo)
+							region.AddItem(gold);
 
 						amount -= gold.Info.Amount;
 					}
@@ -1465,7 +1468,8 @@ namespace Aura.Channel.World.Entities
 					item.Info.Y = dropPos.Y;
 					item.DisappearTime = DateTime.Now.AddSeconds(60);
 
-					this.Region.AddItem(item);
+					if (region != Region.Limbo)
+						region.AddItem(item);
 
 					dropped.Add(drop.ItemId);
 				}
