@@ -48,6 +48,8 @@ namespace Aura.Channel.World.Dungeons.Puzzles
 		void OpenAllDoors();
 		uint GetLockColor();
 
+		void AddProp(DungeonProp prop, DungeonPropPositionType positionType);
+
 		void SpawnSingleMob(string mobGroupName, string mobName = null);
 	}
 
@@ -123,6 +125,11 @@ namespace Aura.Channel.World.Dungeons.Puzzles
 				room.SetPuzzleDoor(door, direction);
 				room.SetDoorType(direction, (int)doorType);
 			}
+		}
+
+		public void AddProp(DungeonProp prop, DungeonPropPositionType positionType)
+		{
+			_puzzle.AddProp(this, prop, positionType);
 		}
 
 		public void DeclareLock()
