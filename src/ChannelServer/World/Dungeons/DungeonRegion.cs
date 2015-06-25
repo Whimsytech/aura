@@ -266,6 +266,26 @@ namespace Aura.Channel.World.Dungeons
 				}
 			}
 		}
+
+		public void DebugImage()
+		{
+			using (var bmp = new Bitmap(this.Floor.MazeGenerator.Width * 120 + 120, this.Floor.MazeGenerator.Height * 120 + 120))
+			using (var gfx = Graphics.FromImage(bmp))
+			{
+				foreach (var prop in _props.Values)
+				{
+					foreach (var points in prop.Shapes)
+					{
+						gfx.DrawLine(Pens.Black, points[0].X / 20 + 60, (bmp.Height - points[0].Y / 20) - 60, points[1].X / 20 + 60, (bmp.Height - points[1].Y / 20) - 60);
+						gfx.DrawLine(Pens.Black, points[1].X / 20 + 60, (bmp.Height - points[1].Y / 20) - 60, points[2].X / 20 + 60, (bmp.Height - points[2].Y / 20) - 60);
+						gfx.DrawLine(Pens.Black, points[2].X / 20 + 60, (bmp.Height - points[2].Y / 20) - 60, points[3].X / 20 + 60, (bmp.Height - points[3].Y / 20) - 60);
+						gfx.DrawLine(Pens.Black, points[3].X / 20 + 60, (bmp.Height - points[3].Y / 20) - 60, points[0].X / 20 + 60, (bmp.Height - points[0].Y / 20) - 60);
+					}
+				}
+
+				bmp.Save(this.Name + ".png", System.Drawing.Imaging.ImageFormat.Png);
+			}
+		}
 	}
 
 	/// <summary>

@@ -234,6 +234,13 @@ namespace Aura.Channel.Util
 
 			Send.ServerMessage(sender, msg, target.RegionId, pos.X, pos.Y, target.Name, target.Direction, areaId, MabiMath.ByteToRadian(target.Direction).ToInvariant("#.###"));
 
+			for (int i = 10010; i < 10020; ++i)
+			{
+				var region = ChannelServer.Instance.World.GetRegion(i) as Aura.Channel.World.Dungeons.DungeonFloorRegion;
+				if (region != null)
+					region.DebugImage();
+			}
+
 			return CommandResult.Okay;
 		}
 
