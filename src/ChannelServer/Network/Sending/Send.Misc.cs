@@ -74,6 +74,9 @@ namespace Aura.Channel.Network.Sending
 		/// </summary>
 		/// <remarks>
 		/// Should this be broadcasted? What does it even do? TODO.
+		/// 
+		/// Seems to be required to make summoned creatures actually disappear
+		/// on the client, CreatureDisappears is not enough.
 		/// </remarks>
 		/// <param name="creature"></param>
 		public static void Disappear(Creature creature)

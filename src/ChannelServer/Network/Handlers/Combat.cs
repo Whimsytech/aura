@@ -106,7 +106,7 @@ namespace Aura.Channel.Network.Handlers
 		public void CombatAttack(ChannelClient client, Packet packet)
 		{
 			var targetEntityId = packet.GetLong();
-			var unkString = packet.GetString();
+			var unkString = (packet.Peek() == PacketElementType.String ? packet.GetString() : "");
 
 			var creature = client.GetCreatureSafe(packet.Id);
 

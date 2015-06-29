@@ -137,5 +137,7 @@ namespace Aura.Mabi.Const
 		/// Set on take off and landing
 		/// </summary>
 		Flying = 0xFFFFBDDF,
+
+		All = 0xFFFFFFFF,
 	}
 }

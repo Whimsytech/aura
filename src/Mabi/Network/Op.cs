@@ -70,6 +70,7 @@ namespace Aura.Mabi.Network
 		public const int GetChannelList = 0x4E34;
 		public const int GetChannelListR = 0x4E35;
 		public const int WarpUnk1 = 0x4E39;
+		public const int PrivateCreatureInfo = 0x4E3A;
 		public const int RequestRebirth = 0x4E84;
 		public const int RequestRebirthR = 0x4E85;
 
@@ -292,6 +293,7 @@ namespace Aura.Mabi.Network
 		public const int UnreadMailCount = 0x7255;
 		public const int StatUpdatePrivate = 0x7530;
 		public const int StatUpdatePublic = 0x7532;
+		public const int TamedCombatAttack = 0x7918;
 		public const int CombatTargetUpdate = 0x791A; // ?
 		public const int UnkCombat = 0x791B; // ?
 		public const int UnkCombatR = 0x791C; // ?
@@ -436,6 +438,13 @@ namespace Aura.Mabi.Network
 		public const int ContinentWarpCoolDownR = 0xA43E;
 		public const int PartyTypeUpdate = 0xA44B;
 		public const int OpenItemShop = 0xA44D;
+		public const int TamedControl = 0xA430;
+		public const int TamedSetMaster = 0xA457;
+		public const int TamedUnsetMaster = 0xA458;
+		public const int TamedCancel = 0xA459;
+		public const int TamedCancelR = 0xA45A;
+		public const int TamedWarp = 0xA45B;
+		public const int TamedWarpR = 0xA45C;
 
 		// [150000~180000] Something was removed here
 
@@ -450,6 +459,7 @@ namespace Aura.Mabi.Network
 		public const int UmbrellaLand = 0xA8E2;
 		public const int SetBgm = 0xA910;
 		public const int UnsetBgm = 0xA911;
+		public const int TamedControlAcknowledged = 0xA96E;
 		public const int EnterDynamicRegionExtended = 0xA97E; // Creates multiple dynamic regions and warps to one
 		public const int EnableRoyalAlchemist = 0xA9A3;
 		public const int SosButtonRequest = 0xA9A9;

@@ -86,6 +86,7 @@ namespace Aura.Channel.Util
 			Add(99, -1, "reloadscripts", "", HandleReloadScripts);
 			Add(99, -1, "reloadconf", "", HandleReloadConf);
 			Add(99, 99, "closenpc", "", HandleCloseNpc);
+			Add(99, 99, "control", "[amount]", HandleControl);
 
 			// Aliases
 			AddAlias("item", "drop");
@@ -1615,6 +1616,59 @@ namespace Aura.Channel.Util
 				Send.ServerMessage(sender, Localization.Get("No last town found."));
 			else if (!target.Warp(target.LastTown))
 				Send.ServerMessage(sender, Localization.Get("Warp failed."));
+
+			return CommandResult.Okay;
+		}
+
+		/// <summary>
+		/// Gives control of closest non-named NPCs to target's client.
+		/// </summary>
+		/// <param name="client"></param>
+		/// <param name="sender"></param>
+		/// <param name="target"></param>
+		/// <param name="message"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		private CommandResult HandleControl(ChannelClient client, Creature sender, Creature target, string message, IList<string> args)
+		{
+			var amount = 1;
+			if ((args.Count > 1 && !int.TryParse(args[1], out amount)) || amount < 1)
+				return CommandResult.InvalidArgument;
+
+			var targetPos = target.GetPosition();
+			var visible = target.Region.GetVisibleCreaturesInRange(target).OrderBy(a => a.GetPosition().GetDistance(targetPos));
+			var available = new Queue<Creature>(visible.Where(a => a.Has(CreatureStates.Npc) && !a.Has(CreatureStates.NamedNpc) && !a.IsDead && !client.Creatures.ContainsKey(a.EntityId)));
+			if (available.Count == 0)
+			{
+				Send.ServerMessage(sender, Localization.Get("No valid NPCs found."));
+				return CommandResult.Okay;
+			}
+
+			for (int i = 0; i < amount; ++i)
+			{
+				if (available.Count == 0)
+					break;
+
+				var npc = available.Dequeue() as NPC;
+				if (npc == null)
+					continue;
+
+				if (npc.AI != null)
+				{
+					npc.AI.Dispose();
+					npc.AI = null;
+				}
+
+				npc.Client = target.Client;
+				npc.Unlock(Locks.All);
+				target.Client.Creatures.Add(npc.EntityId, npc);
+
+				Send.PrivateCreatureInfo(target, npc);
+				Send.TamedControl(target, npc);
+				Send.TamedSetMaster(target, npc);
+
+				Send.ServerMessage(target, Localization.Get("You now have control over '{0:X16}' ({1})."), npc.EntityId, npc.RaceData.Name);
+			}
 
 			return CommandResult.Okay;
 		}

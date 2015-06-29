@@ -94,6 +94,7 @@
     <Compile Include="Network\Handlers\Character.cs" />
     <Compile Include="Network\Handlers\Items.cs" />
     <Compile Include="Network\Handlers\GMCP.cs" />
+    <Compile Include="Network\Handlers\Tamed.cs" />
     <Compile Include="Network\Handlers\Pets.cs" />
     <Compile Include="Network\Handlers\Props.cs" />
     <Compile Include="Network\Handlers\Quests.cs" />
@@ -279,6 +280,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Compile Include="Network\Sending\Send.Tamed.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Data\Data.csproj">
