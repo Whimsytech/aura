@@ -161,6 +161,12 @@ namespace Aura.Mabi.Const
 		public static readonly int ShadowBunshin = 263;
 
 		/// <summary>
+		/// byte:0, long:entityId, int:delay, float:size
+		/// byte:1, long:entityId, byte:? (0|1 special effect?)
+		/// </summary>
+		public static readonly int GoldStrike = 278;
+
+		/// <summary>
 		/// Used in thunder's final stage
 		/// </summary>
 		public static readonly int Thunderbolt = 298;

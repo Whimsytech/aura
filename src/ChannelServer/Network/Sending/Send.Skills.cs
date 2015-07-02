@@ -767,5 +767,31 @@ namespace Aura.Channel.Network.Sending
 
 			creature.Client.Send(packet);
 		}
+
+		/// <summary>
+		/// Broadcasts GoldBag in range of creature.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="size"></param>
+		public static void GoldBag(Creature creature, float size)
+		{
+			var packet = new Packet(Op.GoldBag, creature.EntityId);
+			packet.PutFloat(size);
+
+			creature.Region.Broadcast(packet, creature);
+		}
+
+		/// <summary>
+		/// Broadcasts RemoveGoldBag in range of creature.
+		/// </summary>
+		/// <param name="creature"></param>
+		/// <param name="unkByte"></param>
+		public static void RemoveGoldBag(Creature creature, byte unkByte)
+		{
+			var packet = new Packet(Op.RemoveGoldBag, creature.EntityId);
+			packet.PutByte(unkByte);
+
+			creature.Region.Broadcast(packet, creature);
+		}
 	}
 }

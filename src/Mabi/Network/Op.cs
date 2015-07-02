@@ -247,6 +247,8 @@ namespace Aura.Mabi.Network
 		public const int PlayDead = 0x7021;
 		public const int OpenUmbrella = 0x7025;
 		public const int CloseUmbrella = 0x7026;
+		public const int GoldBag = 0x7028;
+		public const int RemoveGoldBag = 0x7029;
 		public const int SpreadWingsOn = 0x702E;
 		public const int SpreadWingsOff = 0x702F;
 		public const int NpcShopBuyItem = 0x7150;
