@@ -3,19 +3,32 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Aura.Shared.Util;
 using CSScriptLibrary;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Aura.Shared.Scripting.Compilers
 {
+	public class CSharpCompilerException : Exception
+	{
+		public CSharpCompilerException(System.CodeDom.Compiler.CompilerErrorCollection errors)
+		{
+			this.Data["Errors"] = errors;
+		}
+	}
+
 	/// <summary>
 	/// C# compiler, utilizing CSScript
 	/// </summary>
 	public class CSharpCompiler : Compiler
 	{
+		private Dictionary<Type, Assembly> _typeAsms = new Dictionary<Type, Assembly>();
+
 		public override Assembly Compile(string path, string outPath, bool cache)
 		{
 			Assembly asm = null;
@@ -23,28 +36,71 @@ namespace Aura.Shared.Scripting.Compilers
 			{
 				// Get from cache?
 				if (this.ExistsAndUpToDate(path, outPath) && cache)
-					return Assembly.LoadFrom(outPath);
+				{
+					asm = Assembly.LoadFrom(outPath);
+				}
+				else
+				{
+					// Precompile script to a temp file
+					var precompiled = this.PreCompile(File.ReadAllText(path));
+					var tmpFileName = Path.GetTempFileName();
+					File.WriteAllText(tmpFileName, precompiled);
 
-				// Precompile script to a temp file
-				var precompiled = this.PreCompile(File.ReadAllText(path));
-				var tmp = Path.GetTempFileName();
-				File.WriteAllText(tmp, precompiled);
+					var asmPath = Assembly.GetEntryAssembly().Location;
+					var asmDir = Path.GetDirectoryName(asmPath);
+
+					var provider = System.CodeDom.Compiler.CodeDomProvider.CreateProvider("CSharp"); ;
+					var parameters = new System.CodeDom.Compiler.CompilerParameters();
+					parameters.ReferencedAssemblies.Add("System.dll");
+					parameters.ReferencedAssemblies.Add("System.Core.dll");
+					parameters.ReferencedAssemblies.Add("System.Data.dll");
+					parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
+					parameters.ReferencedAssemblies.Add("System.Xml.dll");
+					parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
+					parameters.ReferencedAssemblies.Add(Path.Combine(asmDir, "Data.dll"));
+					parameters.ReferencedAssemblies.Add(Path.Combine(asmDir, "Mabi.dll"));
+					parameters.ReferencedAssemblies.Add(Path.Combine(asmDir, "Shared.dll"));
+					parameters.ReferencedAssemblies.Add(asmPath);
+					parameters.GenerateExecutable = false;
+					parameters.GenerateInMemory = false;
+					parameters.OutputAssembly = tmpFileName + ".compiled";
+					parameters.TreatWarningsAsErrors = false;
+					parameters.WarningLevel = 0;
 
 #if DEBUG
-				var debug = true;
+					parameters.IncludeDebugInformation = true;
 #else
-				var debug = false;
+					parameters.IncludeDebugInformation = false;
 #endif
 
-				// Compile
-				// Mono needs the settings to not treat harmless warnings as
-				// errors (like a missing await in an async Task) and to not
-				// spam us with warnings.
-				asm = CSScript.LoadWithConfig(tmp, null, debug, CSScript.GlobalSettings, "/warnaserror- /warn:0");
+					// Reference required asms
+					foreach (var type in _typeAsms)
+					{
+						if (Regex.IsMatch(precompiled, @":\s*" + type.Key.Name))
+							parameters.ReferencedAssemblies.Add(type.Value.Location);
 
-				this.SaveAssembly(asm, outPath);
+						//foreach (var asmName in type.Value.GetReferencedAssemblies())
+						//{
+						//	var location = Assembly.ReflectionOnlyLoad(asmName.FullName).Location;
+						//	if (!parameters.ReferencedAssemblies.Contains(location))
+						//		parameters.ReferencedAssemblies.Add(location);
+						//}
+					}
+					// Compile
+
+					var results = provider.CompileAssemblyFromFile(parameters, tmpFileName);
+					if (results.Errors.Count != 0)
+						throw new CSharpCompilerException(results.Errors);
+
+					asm = results.CompiledAssembly;
+
+					this.SaveAssembly(asm, outPath);
+				}
+
+				// Remember where the types came from
+				this.CacheTypeAsms(asm);
 			}
-			catch (csscript.CompilerException ex)
+			catch (CSharpCompilerException ex)
 			{
 				var errors = ex.Data["Errors"] as System.CodeDom.Compiler.CompilerErrorCollection;
 				var newExs = new CompilerErrorsException();
@@ -71,6 +127,18 @@ namespace Aura.Shared.Scripting.Compilers
 			}
 
 			return asm;
+		}
+
+		/// <summary>
+		/// Logs which assembly contains which type.
+		/// </summary>
+		/// <param name="asm"></param>
+		private void CacheTypeAsms(Assembly asm)
+		{
+			foreach (var type in asm.GetTypes())
+			{
+				_typeAsms[type] = asm;
+			}
 		}
 	}
 }
