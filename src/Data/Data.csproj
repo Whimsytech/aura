@@ -62,6 +62,7 @@
     <Compile Include="Database\DungeonBlocks.cs" />
     <Compile Include="Database\Dungeons.cs" />
     <Compile Include="Database\Features.cs" />
+    <Compile Include="Database\Cutscenes.cs" />
     <Compile Include="Database\Fish.cs" />
     <Compile Include="Database\FishingGrounds.cs" />
     <Compile Include="Database\PropDefaults.cs" />
