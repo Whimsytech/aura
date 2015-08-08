@@ -1,6 +1,8 @@
 Aura
 ==============================
 
+[![Join the chat at https://gitter.im/Whimsytech/aura](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Whimsytech/aura?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Aura is an open-source server emulator written in C#. It's solely being
 developed for educational purposes, learning about programming, MMORPGs,
 maintaining huge projects, working with other people, and improving knowledge.
